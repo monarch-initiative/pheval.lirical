@@ -1,6 +1,10 @@
 import click
 
 
+def main_():
+    pass
+
+
 @click.group()
 def main():
     """Lirical runner."""
