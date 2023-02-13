@@ -1,4 +1,6 @@
 """Lirical Runner"""
+from dataclasses import dataclass
+from pathlib import Path
 
 from pheval.runners.runner import PhEvalRunner
 
