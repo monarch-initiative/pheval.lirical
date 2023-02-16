@@ -1,0 +1,5 @@
+run:
+  environment: local
+  path_to_lirical_software_directory: /Users/yaseminbridges/lirical/lirical-cli-2.0.0-RC1
+  exomiser_configurations:
+    path_to_exomiser_data_directory: /Users/yaseminbridges/exomiser/data/
