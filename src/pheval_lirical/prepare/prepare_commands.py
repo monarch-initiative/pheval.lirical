@@ -10,6 +10,7 @@ from pheval.utils.phenopacket_utils import PhenopacketUtil, phenopacket_reader
 @dataclass
 class LiricalManualCommandLineArguments:
     """Minimal arguments required to run LIRICAL manually on the command line."""
+
     lirical_jar_file: Path
     observed_phenotypes: [PhenotypicFeature]
     negated_phenotypes: [PhenotypicFeature] or None
@@ -38,12 +39,12 @@ def obtain_sample_id(phenopacket: Phenopacket):
 
 
 def create_command_line_arguments(
-        lirical_jar: Path,
-        input_dir: Path,
-        exomiser_data_dir: Path,
-        phenopacket_path: Path,
-        vcf_dir: Path,
-        results_dir: Path
+    lirical_jar: Path,
+    input_dir: Path,
+    exomiser_data_dir: Path,
+    phenopacket_path: Path,
+    vcf_dir: Path,
+    results_dir: Path,
 ):
     """Create manual command line arguments to run LIRICAL in manual mode."""
     phenopacket = phenopacket_reader(phenopacket_path)
@@ -110,7 +111,7 @@ class CommandWriter:
                 + str(command_line_arguments.output_dir)
                 + " --output-format "
                 + "tsv"
-                  "\n"
+                "\n"
             )
         except IOError:
             print("Error writing ", self.file)
@@ -124,13 +125,13 @@ class CommandWriter:
 
 
 def write_single_command(
-        lirical_jar,
-        input_dir: Path,
-        exomiser_data_dir: Path,
-        phenopacket_path: Path,
-        vcf_dir: Path,
-        command_writer: CommandWriter,
-        results_dir
+    lirical_jar,
+    input_dir: Path,
+    exomiser_data_dir: Path,
+    phenopacket_path: Path,
+    vcf_dir: Path,
+    command_writer: CommandWriter,
+    results_dir,
 ):
     """Write a single command for LIRICAL to run in manual mode."""
     arguments = create_command_line_arguments(
@@ -140,13 +141,13 @@ def write_single_command(
 
 
 def write_local_commands(
-        lirical_jar,
-        input_dir,
-        exomiser_data_dir,
-        phenopacket_dir,
-        vcf_dir,
-        command_file_path,
-        results_dir
+    lirical_jar,
+    input_dir,
+    exomiser_data_dir,
+    phenopacket_dir,
+    vcf_dir,
+    command_file_path,
+    results_dir,
 ):
     """Write commands to run LIRICAL in manual mode."""
     command_writer = CommandWriter(command_file_path)
@@ -158,13 +159,20 @@ def write_local_commands(
             phenopacket_path,
             vcf_dir,
             command_writer,
-            results_dir
+            results_dir,
         )
     command_writer.close()
 
 
 def prepare_commands(
-        lirical_jar, input_dir, exomiser_data_dir, phenopacket_dir, vcf_dir, file_prefix, output_dir, results_dir
+    lirical_jar,
+    input_dir,
+    exomiser_data_dir,
+    phenopacket_dir,
+    vcf_dir,
+    file_prefix,
+    output_dir,
+    results_dir,
 ):
     """Prepare command batch files to run LIRICAL."""
     output_dir.joinpath("lirical_batch_files").mkdir(parents=True, exist_ok=True)
@@ -176,7 +184,7 @@ def prepare_commands(
         phenopacket_dir,
         vcf_dir,
         command_file_path,
-        results_dir
+        results_dir,
     )
 
 
@@ -194,17 +202,26 @@ def prepare_commands(
 @click.option("--vcf-dir", "-v", required=True, help="Path to vcf directory.", type=Path)
 @click.option("--file-prefix", "-f", required=True, help="File prefix", type=Path)
 @click.option("-output-dir", "-o", required=True, help="Path to output of batch files.", type=Path)
-@click.option("-results-dir", "-r", required=True, help="Path to output LIRICAL results.", type=Path)
+@click.option(
+    "-results-dir", "-r", required=True, help="Path to output LIRICAL results.", type=Path
+)
 def prepare_commands_command(
-        lirical_jar: Path,
-        input_dir: Path,
-        exomiser_data_dir: Path,
-        phenopacket_dir: Path,
-        vcf_dir: Path,
-        file_prefix: str,
-        output_dir: Path,
-        results_dir: Path
+    lirical_jar: Path,
+    input_dir: Path,
+    exomiser_data_dir: Path,
+    phenopacket_dir: Path,
+    vcf_dir: Path,
+    file_prefix: str,
+    output_dir: Path,
+    results_dir: Path,
 ):
     prepare_commands(
-        lirical_jar, input_dir, exomiser_data_dir, phenopacket_dir, vcf_dir, file_prefix, output_dir, results_dir
+        lirical_jar,
+        input_dir,
+        exomiser_data_dir,
+        phenopacket_dir,
+        vcf_dir,
+        file_prefix,
+        output_dir,
+        results_dir,
     )
