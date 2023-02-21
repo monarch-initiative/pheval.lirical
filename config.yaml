@@ -5,4 +5,4 @@ run:
   exomiser_configurations:
     path_to_exomiser_data_directory: /Users/yaseminbridges/exomiser/data/2209_hg19/2209_hg19_variants.mv.db
 post_process:
-  score_order: descending
+  sort_order: descending

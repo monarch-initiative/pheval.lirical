@@ -24,7 +24,7 @@ class LiricalConfigRun:
 @serde
 @dataclass
 class LiricalPostProcess:
-    score_order: str
+    sort_order: str
 
 
 @serde
