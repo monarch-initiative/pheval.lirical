@@ -27,14 +27,26 @@ class LiricalPhEvalRunner(PhEvalRunner):
         """run"""
         config = parse_lirical_config(self.config_file)
         print("running with lirical")
-        prepare_lirical_commands(config=config, input_dir=self.input_dir, output_dir=self.output_dir,
-                                 testdata_dir=self.testdata_dir)
-        run_lirical_local(config=config, input_dir=self.input_dir, testdata_dir=self.testdata_dir,
-                          output_dir=self.output_dir)
+        prepare_lirical_commands(
+            config=config,
+            input_dir=self.input_dir,
+            output_dir=self.output_dir,
+            testdata_dir=self.testdata_dir,
+        )
+        run_lirical_local(
+            config=config,
+            input_dir=self.input_dir,
+            testdata_dir=self.testdata_dir,
+            output_dir=self.output_dir,
+        )
 
     def post_process(self):
         """post_process"""
         print("post processing")
         config = parse_lirical_config(self.config_file)
-        post_process_results_format(input_dir=self.input_dir, testdata_dir=self.testdata_dir,
-                                    output_dir=self.output_dir, config=config)
+        post_process_results_format(
+            input_dir=self.input_dir,
+            testdata_dir=self.testdata_dir,
+            output_dir=self.output_dir,
+            config=config,
+        )
