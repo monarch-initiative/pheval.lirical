@@ -28,7 +28,7 @@ def calculate_end(variant_start: int, variant_ref: str) -> int:
 
 
 def obtain_gene_symbol_from_identifier(
-    gene_identifier: str, hgnc_data: dict, identifier: str
+        gene_identifier: str, hgnc_data: dict, identifier: str
 ) -> str:
     """Obtain gene symbol from a gene identifier."""
     # TODO move to PhEval GeneIdentifierupdator
@@ -39,10 +39,10 @@ def obtain_gene_symbol_from_identifier(
 
 class PhEvalGeneResultFromLirical:
     def __init__(
-        self,
-        lirical_result: pd.DataFrame,
-        hgnc_data: dict,
-        gene_identifier_updator: GeneIdentifierUpdater,
+            self,
+            lirical_result: pd.DataFrame,
+            hgnc_data: dict,
+            gene_identifier_updator: GeneIdentifierUpdater,
     ):
         self.lirical_result = lirical_result
         self.hgnc_data = hgnc_data
@@ -53,14 +53,14 @@ class PhEvalGeneResultFromLirical:
         """Obtain the NCBI gene id from LIRICAL result."""
         return result["entrezGeneId"]
 
-    def obtain_gene_symbol(self, result: pd.Series):
+    def obtain_gene_symbol(self, result: pd.Series) -> str:
         """Obtain the gene symbol from NCBI gene."""
         gene_identifier = self.obtain_lirical_gene_identifier(result)
         return obtain_gene_symbol_from_identifier(
             gene_identifier.split(":")[1], self.hgnc_data, "entrez_id"
         )
 
-    def obtain_gene_identifier(self, result: pd.Series):
+    def obtain_gene_identifier(self, result: pd.Series) -> str:
         """Obtain the ensembl gene identifier from gene symbol."""
         gene_symbol = self.obtain_gene_symbol(result)
         return self.gene_identifier_updator.find_identifier(gene_symbol)
@@ -70,7 +70,7 @@ class PhEvalGeneResultFromLirical:
         """Obtain score from result."""
         return result["compositeLR"]
 
-    def extract_pheval_requirements(self):
+    def extract_pheval_requirements(self) -> [PhEvalGeneResult]:
         """Extract data required to produce PhEval gene output."""
         simplified_gene_results = []
         for _index, result in self.lirical_result.iterrows():
@@ -95,46 +95,46 @@ class PhEvalVariantResultFromLirical:
         return lirical_result_entry["compositeLR"]
 
     @staticmethod
-    def obtain_variants(lirical_result_entry: pd.Series):
+    def obtain_variants(lirical_result_entry: pd.Series) -> str:
         """Obtain all variants listed in a result."""
         return lirical_result_entry["variants"]
 
-    def split_variants(self, lirical_result_entry):
+    def split_variants(self, lirical_result_entry) -> [str]:
         """Split variants contained in a single result row."""
         variants = self.obtain_variants(lirical_result_entry)
         return [x.strip() for x in variants.split(";")]
 
     @staticmethod
-    def get_variant_string(variant: str):
+    def get_variant_string(variant: str) -> str:
         """Obtain variant string."""
         return variant.split(" ")[0]
 
-    def obtain_chromosome(self, variant_str: str):
+    def obtain_chromosome(self, variant_str: str) -> str:
         """Obtain chromosome from variant string."""
         variant = self.get_variant_string(variant_str)
         return variant.split(":")[0]
 
-    def obtain_start(self, variant_str: str):
+    def obtain_start(self, variant_str: str) -> int:
         """Obtain start position from variant string."""
         variant = self.get_variant_string(variant_str)
         return int(self.reg.search(variant.split(":")[1]).group("numbers"))
 
-    def obtain_ref(self, variant_str: str):
+    def obtain_ref(self, variant_str: str) -> str:
         """Obtain reference allele from variant string."""
         variant = self.get_variant_string(variant_str)
         return self.reg.search(variant.split(":")[1]).group("rest").split(">")[0]
 
-    def obtain_end(self, variant_str: str):
+    def obtain_end(self, variant_str: str) -> int:
         """Obtain end position from variant string."""
         variant = self.get_variant_string(variant_str)
         return calculate_end(self.obtain_start(variant), self.obtain_ref(variant))
 
-    def obtain_alt(self, variant_str: str):
+    def obtain_alt(self, variant_str: str) -> str:
         """Obtain alternate allele from variant string."""
         variant = self.get_variant_string(variant_str)
         return self.reg.search(variant.split(":")[1]).group("rest").split(">")[1]
 
-    def extract_pheval_requirements(self):
+    def extract_pheval_requirements(self) -> PhEvalVariantResult:
         """Extract data required to produce PhEval variant output."""
         simplified_variant_results = []
         for _index, result in self.lirical_result.iterrows():
@@ -156,8 +156,8 @@ class PhEvalVariantResultFromLirical:
 
 
 def create_pheval_variant_result_from_lirical(
-    lirical_tsv_result: pd.DataFrame,
-    sort_order: str,
+        lirical_tsv_result: pd.DataFrame,
+        sort_order: str,
 ) -> [RankedPhEvalVariantResult]:
     """Create ranked PhEval variant result from LIRICAL tsv."""
     pheval_variant_result = PhEvalVariantResultFromLirical(
@@ -167,10 +167,10 @@ def create_pheval_variant_result_from_lirical(
 
 
 def create_pheval_gene_result_from_lirical(
-    lirical_tsv_result: pd.DataFrame,
-    gene_identifier_updator: GeneIdentifierUpdater,
-    hgnc_data: dict,
-    sort_order: str,
+        lirical_tsv_result: pd.DataFrame,
+        gene_identifier_updator: GeneIdentifierUpdater,
+        hgnc_data: dict,
+        sort_order: str,
 ) -> [RankedPhEvalGeneResult]:
     """Create ranked PhEval gene result from LIRICAL tsv."""
     pheval_gene_result = PhEvalGeneResultFromLirical(
@@ -211,6 +211,6 @@ def create_standardised_results(results_dir: Path, output_dir: Path, sort_order:
     default="descending",
     show_default=True,
 )
-def post_process(lirical_file: Path, output_dir, sort_order):
+def post_process(lirical_file: Path, output_dir: Path, sort_order: str):
     """Post-process LIRICAL .tsv results to PhEval gene and variant result format."""
     create_standardised_results(lirical_file, output_dir, sort_order)
