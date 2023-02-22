@@ -115,6 +115,9 @@ class TestPhEvalVariantResultFromLirical(unittest.TestCase):
     def test_obtain_end(self):
         self.assertEqual(self.variant_result.obtain_end("19:12998205G>C"), 12998205)
 
+    def test_obtain_end_add_pos(self):
+        self.assertEqual(self.variant_result.obtain_end("19:12998205GGGGGGC>C"), 12998211)
+
     def test_obtain_alt(self):
         self.assertEqual(self.variant_result.obtain_alt("19:12998205G>C"), "C")
 
