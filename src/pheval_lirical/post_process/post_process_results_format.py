@@ -117,7 +117,7 @@ class PhEvalVariantResultFromLirical:
     def obtain_start(self, variant_str: str):
         """Obtain start position from variant string."""
         variant = self.get_variant_string(variant_str)
-        return self.reg.search(variant.split(":")[1]).group("numbers")
+        return int(self.reg.search(variant.split(":")[1]).group("numbers"))
 
     def obtain_ref(self, variant_str: str):
         """Obtain reference allele from variant string."""
