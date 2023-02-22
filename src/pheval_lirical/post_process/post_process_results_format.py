@@ -155,7 +155,7 @@ class PhEvalVariantResultFromLirical:
         return simplified_variant_results
 
 
-def create_variant_gene_result_from_lirical(
+def create_pheval_variant_result_from_lirical(
     lirical_tsv_result: pd.DataFrame,
     sort_order: str,
 ) -> [RankedPhEvalVariantResult]:
@@ -191,7 +191,9 @@ def create_standardised_results(results_dir: Path, output_dir: Path, sort_order:
             lirical_result, gene_identifier_updator, hgnc_data, sort_order
         )
         write_pheval_gene_result(pheval_gene_result, output_dir, result)
-        pheval_variant_result = create_variant_gene_result_from_lirical(lirical_result, sort_order)
+        pheval_variant_result = create_pheval_variant_result_from_lirical(
+            lirical_result, sort_order
+        )
         write_pheval_variant_result(pheval_variant_result, output_dir, result)
 
 
