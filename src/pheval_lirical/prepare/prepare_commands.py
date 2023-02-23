@@ -23,7 +23,8 @@ class LiricalManualCommandLineArguments:
     output_prefix: str
 
 
-def obtain_negated_phenotypes(phenopacket: Phenopacket):
+def obtain_negated_phenotypes(phenopacket: Phenopacket) -> PhenotypicFeature:
+    # TODO move to PhEval
     """Obtain negated phenotypic features from a Phenopacket."""
     negated_phenotypic_features = []
     phenotypes = PhenopacketUtil(phenopacket).phenotypic_features()
@@ -34,25 +35,25 @@ def obtain_negated_phenotypes(phenopacket: Phenopacket):
 
 
 def obtain_sample_id(phenopacket: Phenopacket):
+    # TODO move to PhEval
     """Obtain sample ID from a Phenopacket."""
     return phenopacket.subject.id
 
 
 def create_command_line_arguments(
+    phenopacket: Phenopacket,
     lirical_jar: Path,
     input_dir: Path,
     exomiser_data_dir: Path,
     phenopacket_path: Path,
     vcf_dir: Path,
     results_dir: Path,
-):
+) -> LiricalManualCommandLineArguments:
     """Create manual command line arguments to run LIRICAL in manual mode."""
-    phenopacket = phenopacket_reader(phenopacket_path)
     phenopacket_util = PhenopacketUtil(phenopacket)
     vcf_file_data = phenopacket_util.vcf_file_data(
         phenopacket_path=phenopacket_path, vcf_dir=vcf_dir
     )
-
     return LiricalManualCommandLineArguments(
         lirical_jar_file=lirical_jar,
         observed_phenotypes=[
@@ -75,7 +76,9 @@ class CommandWriter:
     def __init__(self, output_file: Path):
         self.file = open(output_file, "w")
 
-    def write_local_command(self, command_line_arguments: LiricalManualCommandLineArguments):
+    def write_local_command(
+        self, command_line_arguments: LiricalManualCommandLineArguments
+    ) -> None:
         """Write command to run LIRICAL in manual mode locally."""
         try:
             self.file.write(
@@ -116,7 +119,7 @@ class CommandWriter:
         except IOError:
             print("Error writing ", self.file)
 
-    def close(self):
+    def close(self) -> None:
         """Close file."""
         try:
             self.file.close()
@@ -132,10 +135,17 @@ def write_single_command(
     vcf_dir: Path,
     command_writer: CommandWriter,
     results_dir,
-):
+) -> None:
     """Write a single command for LIRICAL to run in manual mode."""
+    phenopacket = phenopacket_reader(phenopacket_path)
     arguments = create_command_line_arguments(
-        lirical_jar, input_dir, exomiser_data_dir, phenopacket_path, vcf_dir, results_dir
+        lirical_jar,
+        input_dir,
+        exomiser_data_dir,
+        phenopacket_path,
+        phenopacket,
+        vcf_dir,
+        results_dir,
     )
     command_writer.write_local_command(arguments)
 
@@ -148,7 +158,7 @@ def write_local_commands(
     vcf_dir,
     command_file_path,
     results_dir,
-):
+) -> None:
     """Write commands to run LIRICAL in manual mode."""
     command_writer = CommandWriter(command_file_path)
     for phenopacket_path in all_files(phenopacket_dir):
@@ -165,14 +175,14 @@ def write_local_commands(
 
 
 def prepare_commands(
-    lirical_jar,
-    input_dir,
-    exomiser_data_dir,
-    phenopacket_dir,
-    vcf_dir,
-    file_prefix,
-    output_dir,
-    results_dir,
+    lirical_jar: Path,
+    input_dir: Path,
+    exomiser_data_dir: Path,
+    phenopacket_dir: Path,
+    vcf_dir: Path,
+    file_prefix: str,
+    output_dir: Path,
+    results_dir: Path,
 ):
     """Prepare command batch files to run LIRICAL."""
     output_dir.joinpath("lirical_batch_files").mkdir(parents=True, exist_ok=True)
