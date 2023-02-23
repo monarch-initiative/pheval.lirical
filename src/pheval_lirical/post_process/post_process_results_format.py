@@ -28,7 +28,7 @@ def calculate_end(variant_start: int, variant_ref: str) -> int:
 
 
 def obtain_gene_symbol_from_identifier(
-        gene_identifier: str, hgnc_data: dict, identifier: str
+    gene_identifier: str, hgnc_data: dict, identifier: str
 ) -> str:
     """Obtain gene symbol from a gene identifier."""
     # TODO move to PhEval GeneIdentifierupdator
@@ -39,10 +39,10 @@ def obtain_gene_symbol_from_identifier(
 
 class PhEvalGeneResultFromLirical:
     def __init__(
-            self,
-            lirical_result: pd.DataFrame,
-            hgnc_data: dict,
-            gene_identifier_updator: GeneIdentifierUpdater,
+        self,
+        lirical_result: pd.DataFrame,
+        hgnc_data: dict,
+        gene_identifier_updator: GeneIdentifierUpdater,
     ):
         self.lirical_result = lirical_result
         self.hgnc_data = hgnc_data
@@ -156,8 +156,8 @@ class PhEvalVariantResultFromLirical:
 
 
 def create_pheval_variant_result_from_lirical(
-        lirical_tsv_result: pd.DataFrame,
-        sort_order: str,
+    lirical_tsv_result: pd.DataFrame,
+    sort_order: str,
 ) -> [RankedPhEvalVariantResult]:
     """Create ranked PhEval variant result from LIRICAL tsv."""
     pheval_variant_result = PhEvalVariantResultFromLirical(
@@ -167,10 +167,10 @@ def create_pheval_variant_result_from_lirical(
 
 
 def create_pheval_gene_result_from_lirical(
-        lirical_tsv_result: pd.DataFrame,
-        gene_identifier_updator: GeneIdentifierUpdater,
-        hgnc_data: dict,
-        sort_order: str,
+    lirical_tsv_result: pd.DataFrame,
+    gene_identifier_updator: GeneIdentifierUpdater,
+    hgnc_data: dict,
+    sort_order: str,
 ) -> [RankedPhEvalGeneResult]:
     """Create ranked PhEval gene result from LIRICAL tsv."""
     pheval_gene_result = PhEvalGeneResultFromLirical(
