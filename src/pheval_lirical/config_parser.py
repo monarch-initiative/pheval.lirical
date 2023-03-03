@@ -16,7 +16,6 @@ class ExomiserLiricalExomiserConfigs:
 @dataclass
 class LiricalConfigRun:
     environment: str
-    phenotype_only: bool
     version: str
     path_to_lirical_software_directory: Path
     exomiser_configurations: ExomiserLiricalExomiserConfigs
