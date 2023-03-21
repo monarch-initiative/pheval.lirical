@@ -10,10 +10,10 @@ from pheval.post_processing.post_processing import (
     RankedPhEvalVariantResult,
     create_pheval_result,
     write_pheval_gene_result,
-    write_pheval_variant_result,
+    write_pheval_variant_result, calculate_end_pos,
 )
 from pheval.utils.file_utils import files_with_suffix
-from pheval.utils.phenopacket_utils import GeneIdentifierUpdater, create_hgnc_dict
+from pheval.utils.phenopacket_utils import GeneIdentifierUpdater, create_gene_identifier_map, create_hgnc_dict
 
 
 def read_lirical_result(lirical_result_path: Path) -> pd.DataFrame:
@@ -21,31 +21,13 @@ def read_lirical_result(lirical_result_path: Path) -> pd.DataFrame:
     return pd.read_csv(lirical_result_path, delimiter="\t", comment="!")
 
 
-def calculate_end(variant_start: int, variant_ref: str) -> int:
-    """Calculate the end position for a variant."""
-    # TODO move to PhEval
-    return int(variant_start) + int(len(variant_ref)) - 1
-
-
-def obtain_gene_symbol_from_identifier(
-    gene_identifier: str, hgnc_data: dict, identifier: str
-) -> str:
-    """Obtain gene symbol from a gene identifier."""
-    # TODO move to PhEval GeneIdentifierupdator
-    for symbol, data in hgnc_data.items():
-        if gene_identifier == data[identifier]:
-            return symbol
-
-
 class PhEvalGeneResultFromLirical:
     def __init__(
-        self,
-        lirical_result: pd.DataFrame,
-        hgnc_data: dict,
-        gene_identifier_updator: GeneIdentifierUpdater,
+            self,
+            lirical_result: pd.DataFrame,
+            gene_identifier_updator: GeneIdentifierUpdater,
     ):
         self.lirical_result = lirical_result
-        self.hgnc_data = hgnc_data
         self.gene_identifier_updator = gene_identifier_updator
 
     @staticmethod
@@ -56,8 +38,8 @@ class PhEvalGeneResultFromLirical:
     def obtain_gene_symbol(self, result: pd.Series) -> str:
         """Obtain the gene symbol from NCBI gene."""
         gene_identifier = self.obtain_lirical_gene_identifier(result)
-        return obtain_gene_symbol_from_identifier(
-            gene_identifier.split(":")[1], self.hgnc_data, "entrez_id"
+        return self.gene_identifier_updator.obtain_gene_symbol_from_identifier(
+            gene_identifier.split(":")[1]
         )
 
     def obtain_gene_identifier(self, result: pd.Series) -> str:
@@ -127,7 +109,7 @@ class PhEvalVariantResultFromLirical:
     def obtain_end(self, variant_str: str) -> int:
         """Obtain end position from variant string."""
         variant = self.get_variant_string(variant_str)
-        return calculate_end(self.obtain_start(variant), self.obtain_ref(variant))
+        return calculate_end_pos(self.obtain_start(variant), self.obtain_ref(variant))
 
     def obtain_alt(self, variant_str: str) -> str:
         """Obtain alternate allele from variant string."""
@@ -156,8 +138,8 @@ class PhEvalVariantResultFromLirical:
 
 
 def create_pheval_variant_result_from_lirical(
-    lirical_tsv_result: pd.DataFrame,
-    sort_order: str,
+        lirical_tsv_result: pd.DataFrame,
+        sort_order: str,
 ) -> [RankedPhEvalVariantResult]:
     """Create ranked PhEval variant result from LIRICAL tsv."""
     pheval_variant_result = PhEvalVariantResultFromLirical(
@@ -167,14 +149,13 @@ def create_pheval_variant_result_from_lirical(
 
 
 def create_pheval_gene_result_from_lirical(
-    lirical_tsv_result: pd.DataFrame,
-    gene_identifier_updator: GeneIdentifierUpdater,
-    hgnc_data: dict,
-    sort_order: str,
+        lirical_tsv_result: pd.DataFrame,
+        gene_identifier_updator: GeneIdentifierUpdater,
+        sort_order: str,
 ) -> [RankedPhEvalGeneResult]:
     """Create ranked PhEval gene result from LIRICAL tsv."""
     pheval_gene_result = PhEvalGeneResultFromLirical(
-        lirical_tsv_result, hgnc_data, gene_identifier_updator
+        lirical_tsv_result, gene_identifier_updator
     ).extract_pheval_requirements()
     return create_pheval_result(pheval_gene_result, sort_order)
 
@@ -183,12 +164,13 @@ def create_standardised_results(results_dir: Path, output_dir: Path, sort_order:
     """Write standardised gene and variant results from LIRICAL tsv output."""
     output_dir.joinpath("pheval_gene_results/").mkdir(exist_ok=True, parents=True)
     output_dir.joinpath("pheval_variant_results/").mkdir(exist_ok=True, parents=True)
+    identifier_map = create_gene_identifier_map()
     hgnc_data = create_hgnc_dict()
-    gene_identifier_updator = GeneIdentifierUpdater(hgnc_data, gene_identifier="ensembl_id")
+    gene_identifier_updator = GeneIdentifierUpdater(gene_identifier="ensembl_id", identifier_map=identifier_map, hgnc_data=hgnc_data)
     for result in files_with_suffix(results_dir, ".tsv"):
         lirical_result = read_lirical_result(result)
         pheval_gene_result = create_pheval_gene_result_from_lirical(
-            lirical_result, gene_identifier_updator, hgnc_data, sort_order
+            lirical_result, gene_identifier_updator, sort_order
         )
         write_pheval_gene_result(pheval_gene_result, output_dir, result)
         pheval_variant_result = create_pheval_variant_result_from_lirical(
