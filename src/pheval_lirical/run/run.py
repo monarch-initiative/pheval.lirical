@@ -49,7 +49,7 @@ def run_lirical_local(config: LiricalConfig, input_dir: Path, testdata_dir: Path
         file
         for file in all_files(
             Path(output_dir).joinpath(
-                f"lirical_{config.run.version}_{Path(input_dir).name}/lirical_batch_files"
+                f"lirical_{config.run.version}_{Path(input_dir).name}/tool_input_commands"
             )
         )
         if file.name.startswith(os.path.basename(testdata_dir))
