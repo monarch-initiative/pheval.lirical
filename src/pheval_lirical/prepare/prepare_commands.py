@@ -27,6 +27,7 @@ class CommandCreator:
     def __init__(
         self,
         phenopacket_path: Path,
+        phenopacket: Phenopacket,
         lirical_jar: Path,
         input_dir: Path,
         exomiser_data_dir: Path,
@@ -39,7 +40,7 @@ class CommandCreator:
         self.exomiser_data_dir = exomiser_data_dir
         self.vcf_dir = vcf_dir
         self.results_dir = results_dir
-        self.phenopacket_util = PhenopacketUtil(phenopacket_reader(phenopacket_path))
+        self.phenopacket_util = PhenopacketUtil(phenopacket)
 
     def get_list_negated_phenotypic_features(self):
         return (
@@ -88,9 +89,11 @@ def create_command_arguments(
     phenopacket_paths = files_with_suffix(phenopacket_dir, ".json")
     commands = []
     for phenopacket_path in phenopacket_paths:
+        phenopacket = phenopacket_reader(phenopacket_path)
         commands.append(
             CommandCreator(
                 phenopacket_path=phenopacket_path,
+                phenopacket=phenopacket,
                 lirical_jar=lirical_jar,
                 input_dir=input_dir,
                 exomiser_data_dir=exomiser_data_dir,
@@ -126,7 +129,9 @@ class CommandWriter:
     ):
         try:
             if command_arguments.negated_phenotypes is not None:
-                self.file.write(" --negated-phenotypes " + command_arguments.negated_phenotypes)
+                self.file.write(
+                    " --negated-phenotypes " + ",".join(command_arguments.negated_phenotypes)
+                )
         except IOError:
             print("Error writing ", self.file)
 
