@@ -23,37 +23,60 @@ class LiricalManualCommandLineArguments:
     output_prefix: str
 
 
+class CommandCreator:
+    def __init__(
+        self,
+        phenopacket_path: Path,
+        lirical_jar: Path,
+        input_dir: Path,
+        exomiser_data_dir: Path,
+        vcf_dir: Path,
+        results_dir: Path,
+    ):
+        self.phenopacket_path = phenopacket_path
+        self.lirical_jar = lirical_jar
+        self.input_dir = input_dir
+        self.exomiser_data_dir = exomiser_data_dir
+        self.vcf_dir = vcf_dir
+        self.results_dir = results_dir
+        self.phenopacket_util = PhenopacketUtil(phenopacket_reader(phenopacket_path))
 
-def create_command_line_arguments(
-    phenopacket: Phenopacket,
-    lirical_jar: Path,
-    input_dir: Path,
-    exomiser_data_dir: Path,
-    phenopacket_path: Path,
-    vcf_dir: Path,
-    results_dir: Path,
-) -> LiricalManualCommandLineArguments:
-    """Create manual command line arguments to run LIRICAL in manual mode."""
-    phenopacket_util = PhenopacketUtil(phenopacket)
-    vcf_file_data = phenopacket_util.vcf_file_data(
-        phenopacket_path=phenopacket_path, vcf_dir=vcf_dir
-    )
-    return LiricalManualCommandLineArguments(
-        lirical_jar_file=lirical_jar,
-        observed_phenotypes=[
-            hpo.type.id for hpo in phenopacket_util.observed_phenotypic_features()
-        ],
-        negated_phenotypes=None
-        if phenopacket_util.negated_phenotypic_features() == []
-        else [hpo.type.id for hpo in phenopacket_util.negated_phenotypic_features()],
-        assembly=vcf_file_data.file_attributes["genomeAssembly"],
-        vcf_file_path=vcf_file_data.uri,
-        lirical_data=input_dir,
-        exomiser_data=exomiser_data_dir,
-        sample_id=phenopacket_util.sample_id(),
-        output_dir=results_dir,
-        output_prefix=phenopacket_path.stem,
-    )
+    def get_list_negated_phenotypic_features(self):
+        return (
+            None
+            if self.phenopacket_util.negated_phenotypic_features() == []
+            else [hpo.type.id for hpo in self.phenopacket_util.negated_phenotypic_features()]
+        )
+
+    def get_list_observed_phenotypic_features(self):
+        return [hpo.type.id for hpo in self.phenopacket_util.observed_phenotypic_features()]
+
+    def get_vcf_path(self):
+        return self.phenopacket_util.vcf_file_data(
+            phenopacket_path=self.phenopacket_path, vcf_dir=self.vcf_dir
+        ).uri
+
+    def get_vcf_assembly(self):
+        return self.phenopacket_util.vcf_file_data(
+            phenopacket_path=self.phenopacket_path, vcf_dir=self.vcf_dir
+        ).file_attributes["genomeAssembly"]
+
+    def add_manual_cli_arguments(self):
+        return LiricalManualCommandLineArguments(
+            lirical_jar_file=self.lirical_jar,
+            observed_phenotypes=self.get_list_observed_phenotypic_features(),
+            negated_phenotypes=self.get_list_negated_phenotypic_features(),
+            assembly=self.get_vcf_assembly(),
+            vcf_file_path=self.get_vcf_path(),
+            lirical_data=self.input_dir,
+            exomiser_data=self.exomiser_data_dir,
+            sample_id=self.phenopacket_util.sample_id(),
+            output_dir=self.results_dir,
+            output_prefix=self.phenopacket_path.stem,
+        )
+
+
+
 
 
 class CommandWriter:
