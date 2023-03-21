@@ -18,7 +18,7 @@ class LiricalManualCommandLineArguments:
     vcf_file_path: Path
     sample_id: str
     lirical_data: Path
-    exomiser_data: Path or None
+    exomiser_data: Path
     output_dir: Path
     output_prefix: str
 
