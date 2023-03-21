@@ -139,13 +139,13 @@ def write_single_command(
     """Write a single command for LIRICAL to run in manual mode."""
     phenopacket = phenopacket_reader(phenopacket_path)
     arguments = create_command_line_arguments(
-        lirical_jar,
-        input_dir,
-        exomiser_data_dir,
-        phenopacket_path,
-        phenopacket,
-        vcf_dir,
-        results_dir,
+        lirical_jar=lirical_jar,
+        input_dir=input_dir,
+        exomiser_data_dir=exomiser_data_dir,
+        phenopacket_path=phenopacket_path,
+        phenopacket=phenopacket,
+        vcf_dir=vcf_dir,
+        results_dir=results_dir,
     )
     command_writer.write_local_command(arguments)
 
