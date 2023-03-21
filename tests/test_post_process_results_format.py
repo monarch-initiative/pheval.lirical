@@ -7,7 +7,11 @@ from pheval.post_processing.post_processing import (
     RankedPhEvalGeneResult,
     RankedPhEvalVariantResult,
 )
-from pheval.utils.phenopacket_utils import GeneIdentifierUpdater, create_hgnc_dict
+from pheval.utils.phenopacket_utils import (
+    GeneIdentifierUpdater,
+    create_gene_identifier_map,
+    create_hgnc_dict,
+)
 
 from pheval_lirical.post_process.post_process_results_format import (
     PhEvalGeneResultFromLirical,
@@ -66,8 +70,12 @@ class TestPhEvalGeneResultFromLirical(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         hgnc_data = create_hgnc_dict()
+        identifier_map = create_gene_identifier_map()
         cls.gene_result = PhEvalGeneResultFromLirical(
-            lirical_results, hgnc_data, GeneIdentifierUpdater(hgnc_data, "ensembl_id")
+            lirical_results,
+            GeneIdentifierUpdater(
+                hgnc_data=hgnc_data, identifier_map=identifier_map, gene_identifier="ensembl_id"
+            ),
         )
 
     def test_obtain_lirical_gene_identifier(self):
@@ -239,6 +247,7 @@ class TestCreateVariantGeneResultFromLirical(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.hgnc_data = create_hgnc_dict()
+        cls.identifier_map = create_gene_identifier_map()
 
     def test_create_pheval_variant_result_from_lirical(self):
         self.assertEqual(
@@ -381,8 +390,11 @@ class TestCreateVariantGeneResultFromLirical(unittest.TestCase):
         self.assertEqual(
             create_pheval_gene_result_from_lirical(
                 lirical_results,
-                GeneIdentifierUpdater(hgnc_data=self.hgnc_data, gene_identifier="ensembl_id"),
-                self.hgnc_data,
+                GeneIdentifierUpdater(
+                    hgnc_data=self.hgnc_data,
+                    gene_identifier="ensembl_id",
+                    identifier_map=self.identifier_map,
+                ),
                 "descending",
             ),
             [
