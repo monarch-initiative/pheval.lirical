@@ -1,3 +1,5 @@
+import shutil
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -19,8 +21,9 @@ from phenopackets import (
 )
 
 from pheval_lirical.prepare.prepare_commands import (
+    CommandCreator,
+    CommandWriter,
     LiricalManualCommandLineArguments,
-    create_command_line_arguments,
 )
 
 interpretations = [
@@ -155,18 +158,76 @@ phenopacket_without_excluded = Phenopacket(
 )
 
 
-class TestCreateCommandLineArguments(unittest.TestCase):
-    def test_create_command_line_arguments_none_excluded(self):
+class TestCommandCreator(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.command_creator = CommandCreator(
+            phenopacket_path=Path("/path/to/phenopacket.json"),
+            phenopacket=phenopacket_with_excluded,
+            lirical_jar=Path("/path/to/lirical.jar"),
+            input_dir=Path("/path/to/lirical/data"),
+            exomiser_data_dir=Path("/path/to/exomiser/data"),
+            vcf_dir=Path("/path/to/vcf_dir"),
+            results_dir=Path("/path/to/results_dir"),
+        )
+        cls.command_creator_none_excluded = CommandCreator(
+            phenopacket_path=Path("/path/to/phenopacket.json"),
+            phenopacket=phenopacket_without_excluded,
+            lirical_jar=Path("/path/to/lirical.jar"),
+            input_dir=Path("/path/to/lirical/data"),
+            exomiser_data_dir=Path("/path/to/exomiser/data"),
+            vcf_dir=Path("/path/to/vcf_dir"),
+            results_dir=Path("/path/to/results_dir"),
+        )
+
+    def test_get_list_negated_phenotypic_features(self):
         self.assertEqual(
-            create_command_line_arguments(
-                phenopacket=phenopacket_without_excluded,
-                lirical_jar=Path("/path/to/lirical.jar"),
-                input_dir=Path("/path/to/lirical/data"),
-                exomiser_data_dir=Path("/path/to/exomiser/data"),
-                phenopacket_path=Path("/path/to/phenopacket.json"),
-                vcf_dir=Path("/path/to/vcf_dir"),
-                results_dir=Path("/path/to/results_dir"),
+            self.command_creator.get_list_negated_phenotypic_features(), ["HP:0008494"]
+        )
+
+    def test_get_list_negated_phenotypic_features_none_excluded(self):
+        self.assertEqual(
+            self.command_creator_none_excluded.get_list_negated_phenotypic_features(), None
+        )
+
+    def test_get_list_observed_phenotypic_features(self):
+        self.assertEqual(
+            self.command_creator.get_list_observed_phenotypic_features(),
+            ["HP:0000256", "HP:0002059", "HP:0100309", "HP:0003150", "HP:0001332"],
+        )
+
+    def test_get_vcf_path(self):
+        self.assertEqual(self.command_creator.get_vcf_path(), "/path/to/vcf_dir/test_1.vcf")
+
+    def test_get_vcf_assembly(self):
+        self.assertEqual(self.command_creator.get_vcf_assembly(), "GRCh37")
+
+    def test_add_manual_cli_arguments(self):
+        self.assertEqual(
+            self.command_creator.add_manual_cli_arguments(),
+            LiricalManualCommandLineArguments(
+                lirical_jar_file=Path("/path/to/lirical.jar"),
+                observed_phenotypes=[
+                    "HP:0000256",
+                    "HP:0002059",
+                    "HP:0100309",
+                    "HP:0003150",
+                    "HP:0001332",
+                ],
+                negated_phenotypes=["HP:0008494"],
+                assembly="GRCh37",
+                vcf_file_path="/path/to/vcf_dir/test_1.vcf",
+                sample_id="test-subject-1",
+                lirical_data=Path("/path/to/lirical/data"),
+                exomiser_data=Path("/path/to/exomiser/data"),
+                output_dir=Path("/path/to/results_dir"),
+                output_prefix="phenopacket",
             ),
+        )
+
+    def test_add_manual_cli_arguments_none_excluded(self):
+        self.assertEqual(
+            self.command_creator_none_excluded.add_manual_cli_arguments(),
             LiricalManualCommandLineArguments(
                 lirical_jar_file=Path("/path/to/lirical.jar"),
                 observed_phenotypes=[
@@ -187,33 +248,110 @@ class TestCreateCommandLineArguments(unittest.TestCase):
             ),
         )
 
-    def test_create_command_line_arguments_excluded(self):
-        self.assertEqual(
-            create_command_line_arguments(
-                phenopacket=phenopacket_with_excluded,
-                lirical_jar=Path("/path/to/lirical.jar"),
-                input_dir=Path("/path/to/lirical/data"),
-                exomiser_data_dir=Path("/path/to/exomiser/data"),
-                phenopacket_path=Path("/path/to/phenopacket.json"),
-                vcf_dir=Path("/path/to/vcf_dir"),
-                results_dir=Path("/path/to/results_dir"),
-            ),
-            LiricalManualCommandLineArguments(
-                lirical_jar_file=Path("/path/to/lirical.jar"),
-                observed_phenotypes=[
-                    "HP:0000256",
-                    "HP:0002059",
-                    "HP:0100309",
-                    "HP:0003150",
-                    "HP:0001332",
-                ],
-                negated_phenotypes=["HP:0008494"],
-                assembly="GRCh37",
-                vcf_file_path="/path/to/vcf_dir/test_1.vcf",
-                sample_id="test-subject-1",
-                lirical_data=Path("/path/to/lirical/data"),
-                exomiser_data=Path("/path/to/exomiser/data"),
-                output_dir=Path("/path/to/results_dir"),
-                output_prefix="phenopacket",
-            ),
+
+class TestCommandWriter(unittest.TestCase):
+    def setUp(self) -> None:
+        self.test_dir = tempfile.mkdtemp()
+        self.command_file_path = Path(self.test_dir).joinpath("test-commands.txt")
+        self.command_writer = CommandWriter(self.command_file_path)
+        self.command_arguments = LiricalManualCommandLineArguments(
+            lirical_jar_file=Path("/path/to/lirical.jar"),
+            observed_phenotypes=[
+                "HP:0000256",
+                "HP:0002059",
+                "HP:0100309",
+                "HP:0003150",
+                "HP:0001332",
+            ],
+            negated_phenotypes=["HP:0008494"],
+            assembly="GRCh37",
+            vcf_file_path="/path/to/vcf_dir/test_1.vcf",
+            sample_id="test-subject-1",
+            lirical_data=Path("/path/to/lirical/data"),
+            exomiser_data=Path("/path/to/exomiser/data"),
+            output_dir=Path("/path/to/results_dir"),
+            output_prefix="phenopacket",
         )
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def test_write_basic_manual_command(self):
+        self.command_writer.write_basic_manual_command(self.command_arguments)
+        self.command_writer.file.close()
+        with open(self.command_file_path) as f:
+            content = f.readlines()
+        f.close()
+        self.assertEqual(content, ["java -jar /path/to/lirical.jar R "])
+
+    def test_write_observed_phenotypic_features(self):
+        self.command_writer.write_observed_phenotypic_features(self.command_arguments)
+        self.command_writer.file.close()
+        with open(self.command_file_path) as f:
+            content = f.readlines()
+        f.close()
+        self.assertEqual(
+            content,
+            ["--observed-phenotypes HP:0000256,HP:0002059,HP:0100309,HP:0003150,HP:0001332"],
+        )
+
+    def test_write_negated_phenotypic_features(self):
+        self.command_writer.write_negated_phenotypic_features(self.command_arguments)
+        self.command_writer.file.close()
+        with open(self.command_file_path) as f:
+            content = f.readlines()
+        f.close()
+        self.assertEqual(content, [" --negated-phenotypes HP:0008494"])
+
+    def test_write_vcf(self):
+        self.command_writer.write_vcf(self.command_arguments)
+        self.command_writer.file.close()
+        with open(self.command_file_path) as f:
+            content = f.readlines()
+        f.close()
+        self.assertEqual(
+            content,
+            [' --vcf /path/to/vcf_dir/test_1.vcf --assembly GRCh37 --sample-id "test-subject-1"'],
+        )
+
+    def test_write_data_dirs(self):
+        self.command_writer.write_data_dirs(self.command_arguments)
+        self.command_writer.file.close()
+        with open(self.command_file_path) as f:
+            content = f.readlines()
+        f.close()
+        self.assertEqual(
+            content, [" --data /path/to/lirical/data --exomiser /path/to/exomiser/data"]
+        )
+
+    def test_write_output_parameters(self):
+        self.command_writer.write_output_parameters(self.command_arguments)
+        self.command_writer.file.close()
+        with open(self.command_file_path) as f:
+            content = f.readlines()
+        f.close()
+        self.assertEqual(
+            content,
+            [" --prefix phenopacket --output-directory /path/to/results_dir --output-format tsv"],
+        )
+
+    def test_write_manual_command(self):
+        self.command_writer.write_manual_command(self.command_arguments)
+        self.command_writer.file.close()
+        with open(self.command_file_path) as f:
+            content = f.readlines()
+        f.close()
+        self.assertEqual(
+            content,
+            [
+                "java -jar /path/to/lirical.jar R --observed-phenotypes "
+                "HP:0000256,HP:0002059,HP:0100309,HP:0003150,HP:0001332 --negated-phenotypes HP:0008494 "
+                '--vcf /path/to/vcf_dir/test_1.vcf --assembly GRCh37 --sample-id "test-subject-1" '
+                "--data /path/to/lirical/data --exomiser /path/to/exomiser/data --prefix phenopacket "
+                "--output-directory /path/to/results_dir --output-format tsv\n"
+            ],
+        )
+
+    def test_close(self):
+        self.command_writer.close()
+        self.assertTrue(self.command_writer.file.closed)
