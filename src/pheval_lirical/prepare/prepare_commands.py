@@ -43,6 +43,7 @@ class CommandCreator:
         self.phenopacket_util = PhenopacketUtil(phenopacket)
 
     def get_list_negated_phenotypic_features(self):
+        """Return list of negated HPO ids if there are any present, otherwise return None."""
         return (
             None
             if self.phenopacket_util.negated_phenotypic_features() == []
@@ -50,19 +51,23 @@ class CommandCreator:
         )
 
     def get_list_observed_phenotypic_features(self):
+        """Return list of observed HPO ids."""
         return [hpo.type.id for hpo in self.phenopacket_util.observed_phenotypic_features()]
 
     def get_vcf_path(self):
+        """Return the vcf file path."""
         return self.phenopacket_util.vcf_file_data(
             phenopacket_path=self.phenopacket_path, vcf_dir=self.vcf_dir
         ).uri
 
     def get_vcf_assembly(self):
+        """Return the vcf assembly."""
         return self.phenopacket_util.vcf_file_data(
             phenopacket_path=self.phenopacket_path, vcf_dir=self.vcf_dir
         ).file_attributes["genomeAssembly"]
 
     def add_manual_cli_arguments(self):
+        """Return all CLI arguments to run LIRICAL in manual mode."""
         return LiricalManualCommandLineArguments(
             lirical_jar_file=self.lirical_jar,
             observed_phenotypes=self.get_list_observed_phenotypic_features(),
@@ -85,7 +90,7 @@ def create_command_arguments(
     vcf_dir: Path,
     output_dir: Path,
 ) -> list[LiricalManualCommandLineArguments]:
-    """Return a list of Exomiser command line arguments for a directory of phenopackets."""
+    """Return a list of LIRICAL command line arguments for a directory of phenopackets."""
     phenopacket_paths = files_with_suffix(phenopacket_dir, ".json")
     commands = []
     for phenopacket_path in phenopacket_paths:
@@ -109,6 +114,7 @@ class CommandWriter:
         self.file = open(output_file, "w")
 
     def write_basic_manual_command(self, command_arguments: LiricalManualCommandLineArguments):
+        """Write the basic command do run LIRICAL in manual mode."""
         try:
             self.file.write("java" + " -jar " + str(command_arguments.lirical_jar_file) + " R ")
         except IOError:
@@ -117,6 +123,7 @@ class CommandWriter:
     def write_observed_phenotypic_features(
         self, command_arguments: LiricalManualCommandLineArguments
     ):
+        """Write observed HPO ids to command."""
         try:
             self.file.write(
                 "--observed-phenotypes " + ",".join(command_arguments.observed_phenotypes)
@@ -127,6 +134,7 @@ class CommandWriter:
     def write_negated_phenotypic_features(
         self, command_arguments: LiricalManualCommandLineArguments
     ):
+        """Write negated HPO ids to command."""
         try:
             if command_arguments.negated_phenotypes is not None:
                 self.file.write(
@@ -136,6 +144,7 @@ class CommandWriter:
             print("Error writing ", self.file)
 
     def write_vcf(self, command_arguments: LiricalManualCommandLineArguments):
+        """Write related VCF arguments to command."""
         try:
             self.file.write(
                 " --vcf "
@@ -151,6 +160,7 @@ class CommandWriter:
             print("Error writing ", self.file)
 
     def write_data_dirs(self, command_arguments: LiricalManualCommandLineArguments):
+        """Write data directory locations to command."""
         try:
             self.file.write(
                 " --data "
@@ -162,6 +172,7 @@ class CommandWriter:
             print("Error writing ", self.file)
 
     def write_output_parameters(self, command_arguments: LiricalManualCommandLineArguments):
+        """Write related output parameter arguments to command."""
         try:
             self.file.write(
                 " --prefix "
@@ -175,6 +186,7 @@ class CommandWriter:
             print("Error writing ", self.file)
 
     def write_manual_command(self, command_arguments: LiricalManualCommandLineArguments):
+        """Write LIRICAL command to file to run in manual mode."""
         self.write_basic_manual_command(command_arguments)
         self.write_observed_phenotypic_features(command_arguments)
         self.write_negated_phenotypic_features(command_arguments)
@@ -194,6 +206,7 @@ class CommandWriter:
 def write_all_manual_commands(
     command_arguments: [LiricalManualCommandLineArguments], output_dir: Path, file_prefix: Path
 ):
+    """Write all commands to file for running LIRICAL in manual mode."""
     command_writer = CommandWriter(
         output_file=output_dir.joinpath(f"tool_input_commands/{file_prefix}-lirical-commands.txt")
     )
@@ -247,6 +260,7 @@ def prepare_commands_command(
     output_dir: Path,
     results_dir: Path,
 ):
+    """Prepare command batch files to run LIRICAL."""
     prepare_commands(
         lirical_jar,
         input_dir,
