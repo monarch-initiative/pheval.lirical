@@ -22,6 +22,13 @@ pheval = {git = "https://github.com/monarch-initiative/pheval.git"}
 pytest = "^7.1.2"
 pylint = "^2.15.6"
 pycodestyle = "^2.10.0"
+coverage = "^6.5.0"
+
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src"
+]
 
 [tool.poetry.scripts]
 pheval-lirical = "pheval_lirical.cli:main"
