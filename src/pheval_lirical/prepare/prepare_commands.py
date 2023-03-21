@@ -23,22 +23,6 @@ class LiricalManualCommandLineArguments:
     output_prefix: str
 
 
-def obtain_negated_phenotypes(phenopacket: Phenopacket) -> PhenotypicFeature:
-    # TODO move to PhEval
-    """Obtain negated phenotypic features from a Phenopacket."""
-    negated_phenotypic_features = []
-    phenotypes = PhenopacketUtil(phenopacket).phenotypic_features()
-    for phenotype in phenotypes:
-        if phenotype.excluded:
-            negated_phenotypic_features.append(phenotype)
-    return negated_phenotypic_features if negated_phenotypic_features != [] else None
-
-
-def obtain_sample_id(phenopacket: Phenopacket):
-    # TODO move to PhEval
-    """Obtain sample ID from a Phenopacket."""
-    return phenopacket.subject.id
-
 
 def create_command_line_arguments(
     phenopacket: Phenopacket,
