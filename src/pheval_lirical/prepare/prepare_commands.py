@@ -44,13 +44,13 @@ def create_command_line_arguments(
             hpo.type.id for hpo in phenopacket_util.observed_phenotypic_features()
         ],
         negated_phenotypes=None
-        if obtain_negated_phenotypes(phenopacket) is None
-        else [hpo.type.id for hpo in obtain_negated_phenotypes(phenopacket)],
+        if phenopacket_util.negated_phenotypic_features() == []
+        else [hpo.type.id for hpo in phenopacket_util.negated_phenotypic_features()],
         assembly=vcf_file_data.file_attributes["genomeAssembly"],
         vcf_file_path=vcf_file_data.uri,
         lirical_data=input_dir,
         exomiser_data=exomiser_data_dir,
-        sample_id=obtain_sample_id(phenopacket),
+        sample_id=phenopacket_util.sample_id(),
         output_dir=results_dir,
         output_prefix=phenopacket_path.stem,
     )
