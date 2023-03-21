@@ -8,12 +8,17 @@ from pheval.post_processing.post_processing import (
     PhEvalVariantResult,
     RankedPhEvalGeneResult,
     RankedPhEvalVariantResult,
+    calculate_end_pos,
     create_pheval_result,
     write_pheval_gene_result,
-    write_pheval_variant_result, calculate_end_pos,
+    write_pheval_variant_result,
 )
 from pheval.utils.file_utils import files_with_suffix
-from pheval.utils.phenopacket_utils import GeneIdentifierUpdater, create_gene_identifier_map, create_hgnc_dict
+from pheval.utils.phenopacket_utils import (
+    GeneIdentifierUpdater,
+    create_gene_identifier_map,
+    create_hgnc_dict,
+)
 
 
 def read_lirical_result(lirical_result_path: Path) -> pd.DataFrame:
@@ -23,9 +28,9 @@ def read_lirical_result(lirical_result_path: Path) -> pd.DataFrame:
 
 class PhEvalGeneResultFromLirical:
     def __init__(
-            self,
-            lirical_result: pd.DataFrame,
-            gene_identifier_updator: GeneIdentifierUpdater,
+        self,
+        lirical_result: pd.DataFrame,
+        gene_identifier_updator: GeneIdentifierUpdater,
     ):
         self.lirical_result = lirical_result
         self.gene_identifier_updator = gene_identifier_updator
@@ -138,8 +143,8 @@ class PhEvalVariantResultFromLirical:
 
 
 def create_pheval_variant_result_from_lirical(
-        lirical_tsv_result: pd.DataFrame,
-        sort_order: str,
+    lirical_tsv_result: pd.DataFrame,
+    sort_order: str,
 ) -> [RankedPhEvalVariantResult]:
     """Create ranked PhEval variant result from LIRICAL tsv."""
     pheval_variant_result = PhEvalVariantResultFromLirical(
@@ -149,9 +154,9 @@ def create_pheval_variant_result_from_lirical(
 
 
 def create_pheval_gene_result_from_lirical(
-        lirical_tsv_result: pd.DataFrame,
-        gene_identifier_updator: GeneIdentifierUpdater,
-        sort_order: str,
+    lirical_tsv_result: pd.DataFrame,
+    gene_identifier_updator: GeneIdentifierUpdater,
+    sort_order: str,
 ) -> [RankedPhEvalGeneResult]:
     """Create ranked PhEval gene result from LIRICAL tsv."""
     pheval_gene_result = PhEvalGeneResultFromLirical(
@@ -166,7 +171,9 @@ def create_standardised_results(results_dir: Path, output_dir: Path, sort_order:
     output_dir.joinpath("pheval_variant_results/").mkdir(exist_ok=True, parents=True)
     identifier_map = create_gene_identifier_map()
     hgnc_data = create_hgnc_dict()
-    gene_identifier_updator = GeneIdentifierUpdater(gene_identifier="ensembl_id", identifier_map=identifier_map, hgnc_data=hgnc_data)
+    gene_identifier_updator = GeneIdentifierUpdater(
+        gene_identifier="ensembl_id", identifier_map=identifier_map, hgnc_data=hgnc_data
+    )
     for result in files_with_suffix(results_dir, ".tsv"):
         lirical_result = read_lirical_result(result)
         pheval_gene_result = create_pheval_gene_result_from_lirical(
