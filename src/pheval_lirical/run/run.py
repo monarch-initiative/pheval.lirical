@@ -11,6 +11,7 @@ from pheval_lirical.prepare.prepare_commands import prepare_commands
 def prepare_lirical_commands(
     config: LiricalConfig, input_dir: Path, output_dir: Path, testdata_dir: Path
 ):
+    """Write commands to run LIRICAL."""
     Path(output_dir).joinpath(f"lirical_{config.run.version}_{Path(input_dir).name}").mkdir(
         parents=True, exist_ok=True
     )
@@ -43,7 +44,7 @@ def prepare_lirical_commands(
 def run_lirical_local(config: LiricalConfig, input_dir: Path, testdata_dir: Path, output_dir: Path):
     """Run Phen2Gene locally."""
     Path(output_dir).joinpath(
-        f"lirical_{config.run.version}_{Path(input_dir).name}/{Path(testdata_dir).name}_results/lirical_results"
+        f"lirical_{config.run.version}_{Path(input_dir).name}/{Path(testdata_dir).name}_results/results"
     ).mkdir(parents=True, exist_ok=True)
     batch_file = [
         file
