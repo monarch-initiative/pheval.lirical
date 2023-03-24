@@ -18,6 +18,7 @@ class LiricalPhEvalRunner(PhEvalRunner):
     tmp_dir: Path
     output_dir: Path
     config_file: Path
+    version: str
 
     def prepare(self):
         """prepare"""
