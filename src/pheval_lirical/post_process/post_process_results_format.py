@@ -165,16 +165,14 @@ def create_pheval_gene_result_from_lirical(
     return create_pheval_result(pheval_gene_result, sort_order)
 
 
-def create_standardised_results(results_dir: Path, output_dir: Path, sort_order: str) -> None:
+def create_standardised_results(raw_results_dir: Path, output_dir: Path, sort_order: str) -> None:
     """Write standardised gene and variant results from LIRICAL tsv output."""
-    output_dir.joinpath("pheval_gene_results/").mkdir(exist_ok=True, parents=True)
-    output_dir.joinpath("pheval_variant_results/").mkdir(exist_ok=True, parents=True)
     identifier_map = create_gene_identifier_map()
     hgnc_data = create_hgnc_dict()
     gene_identifier_updator = GeneIdentifierUpdater(
         gene_identifier="ensembl_id", identifier_map=identifier_map, hgnc_data=hgnc_data
     )
-    for result in files_with_suffix(results_dir, ".tsv"):
+    for result in files_with_suffix(raw_results_dir, ".tsv"):
         lirical_result = read_lirical_result(result)
         pheval_gene_result = create_pheval_gene_result_from_lirical(
             lirical_result, gene_identifier_updator, sort_order
@@ -202,4 +200,6 @@ def create_standardised_results(results_dir: Path, output_dir: Path, sort_order:
 )
 def post_process(lirical_file: Path, output_dir: Path, sort_order: str):
     """Post-process LIRICAL .tsv results to PhEval gene and variant result format."""
+    output_dir.joinpath("pheval_gene_results/").mkdir(exist_ok=True, parents=True)
+    output_dir.joinpath("pheval_variant_results/").mkdir(exist_ok=True, parents=True)
     create_standardised_results(lirical_file, output_dir, sort_order)
