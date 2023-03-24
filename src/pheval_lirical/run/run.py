@@ -9,12 +9,13 @@ from pheval_lirical.prepare.prepare_commands import prepare_commands
 
 
 def prepare_lirical_commands(
-    config: LiricalConfig, input_dir: Path, output_dir: Path, testdata_dir: Path
+    config: LiricalConfig,
+    input_dir: Path,
+    tool_input_commands_dir: Path,
+    raw_results_dir: Path,
+    testdata_dir: Path,
 ):
     """Write commands to run LIRICAL."""
-    Path(output_dir).joinpath(f"lirical_{config.run.version}_{Path(input_dir).name}").mkdir(
-        parents=True, exist_ok=True
-    )
     phenopacket_dir = Path(testdata_dir).joinpath(
         [
             directory
@@ -27,33 +28,22 @@ def prepare_lirical_commands(
     )
     prepare_commands(
         lirical_jar=config.run.path_to_lirical_software_directory,
-        input_dir=input_dir,
+        input_dir=input_dir.joinpath("data"),
         exomiser_data_dir=config.run.exomiser_configurations.path_to_exomiser_data_directory,
         phenopacket_dir=phenopacket_dir,
         vcf_dir=vcf_dir,
         file_prefix=Path(testdata_dir).name,
-        output_dir=Path(output_dir).joinpath(
-            f"lirical_{config.run.version}_{Path(input_dir).name}"
-        ),
-        results_dir=Path(output_dir).joinpath(
-            f"lirical_{config.run.version}_{Path(input_dir).name}/{Path(testdata_dir).name}_results/lirical_results"
-        ),
-    )
+        tool_input_commands_dir=tool_input_commands_dir,
+        raw_results_dir=raw_results_dir,
+    ),
 
 
-def run_lirical_local(config: LiricalConfig, input_dir: Path, testdata_dir: Path, output_dir: Path):
+def run_lirical_local(tool_input_commands_dir: Path, testdata_dir: Path):
     """Run Phen2Gene locally."""
-    Path(output_dir).joinpath(
-        f"lirical_{config.run.version}_{Path(input_dir).name}/{Path(testdata_dir).name}_results/results"
-    ).mkdir(parents=True, exist_ok=True)
     batch_file = [
         file
-        for file in all_files(
-            Path(output_dir).joinpath(
-                f"lirical_{config.run.version}_{Path(input_dir).name}/tool_input_commands"
-            )
-        )
-        if file.name.startswith(os.path.basename(testdata_dir))
+        for file in all_files(Path(tool_input_commands_dir))
+        if file.name.startswith(Path(testdata_dir).name)
     ][0]
     print("running LIRICAL")
     subprocess.run(

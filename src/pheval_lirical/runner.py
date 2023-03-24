@@ -31,14 +31,12 @@ class LiricalPhEvalRunner(PhEvalRunner):
         prepare_lirical_commands(
             config=config,
             input_dir=self.input_dir,
-            output_dir=self.output_dir,
             testdata_dir=self.testdata_dir,
+            raw_results_dir=self.raw_results_dir,
+            tool_input_commands_dir=self.tool_input_commands_dir,
         )
         run_lirical_local(
-            config=config,
-            input_dir=self.input_dir,
-            testdata_dir=self.testdata_dir,
-            output_dir=self.output_dir,
+            testdata_dir=self.testdata_dir, tool_input_commands_dir=self.tool_input_commands_dir
         )
 
     def post_process(self):
@@ -46,8 +44,7 @@ class LiricalPhEvalRunner(PhEvalRunner):
         print("post processing")
         config = parse_lirical_config(self.config_file)
         post_process_results_format(
-            input_dir=self.input_dir,
-            testdata_dir=self.testdata_dir,
+            raw_results_dir=self.raw_results_dir,
             output_dir=self.output_dir,
             config=config,
         )
