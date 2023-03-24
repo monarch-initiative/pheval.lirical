@@ -204,11 +204,13 @@ class CommandWriter:
 
 
 def write_all_manual_commands(
-    command_arguments: [LiricalManualCommandLineArguments], output_dir: Path, file_prefix: Path
+    command_arguments: [LiricalManualCommandLineArguments],
+    tool_input_commands_dir: Path,
+    file_prefix: Path,
 ):
     """Write all commands to file for running LIRICAL in manual mode."""
     command_writer = CommandWriter(
-        output_file=output_dir.joinpath(f"tool_input_commands/{file_prefix}-lirical-commands.txt")
+        output_file=tool_input_commands_dir.joinpath(f"{file_prefix}-lirical-commands.txt")
     )
     for command_argument in command_arguments:
         command_writer.write_manual_command(command_argument)
@@ -222,15 +224,14 @@ def prepare_commands(
     phenopacket_dir: Path,
     vcf_dir: Path,
     file_prefix: str,
-    output_dir: Path,
-    results_dir: Path,
+    tool_input_commands_dir: Path,
+    raw_results_dir: Path,
 ):
     """Prepare command batch files to run LIRICAL."""
-    output_dir.joinpath("tool_input_commands").mkdir(parents=True, exist_ok=True)
     command_arguments = create_command_arguments(
-        phenopacket_dir, lirical_jar, input_dir, exomiser_data_dir, vcf_dir, results_dir
+        phenopacket_dir, lirical_jar, input_dir, exomiser_data_dir, vcf_dir, raw_results_dir
     )
-    write_all_manual_commands(command_arguments, output_dir, file_prefix)
+    write_all_manual_commands(command_arguments, tool_input_commands_dir, file_prefix)
 
 
 @click.command("prepare-commands")
@@ -261,6 +262,7 @@ def prepare_commands_command(
     results_dir: Path,
 ):
     """Prepare command batch files to run LIRICAL."""
+    output_dir.joinpath("tool_input_commands").mkdir(parents=True, exist_ok=True)
     prepare_commands(
         lirical_jar,
         input_dir,
@@ -268,6 +270,6 @@ def prepare_commands_command(
         phenopacket_dir,
         vcf_dir,
         file_prefix,
-        output_dir,
+        output_dir.joinpath("tool_input_commands"),
         results_dir,
     )
