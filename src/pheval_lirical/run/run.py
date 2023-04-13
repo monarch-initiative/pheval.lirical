@@ -5,7 +5,7 @@ from pathlib import Path
 from pheval.utils.file_utils import all_files
 
 from pheval_lirical.config_parser import LiricalConfig
-from pheval_lirical.prepare.prepare_commands import prepare_commands
+from pheval_lirical.prepare.prepare_manual_commands import prepare_commands
 
 
 def prepare_lirical_commands(
