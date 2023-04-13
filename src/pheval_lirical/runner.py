@@ -7,6 +7,7 @@ from pheval.runners.runner import PhEvalRunner
 from pheval_lirical.config_parser import parse_lirical_config
 from pheval_lirical.post_process.post_process import post_process_results_format
 from pheval_lirical.run.run import prepare_lirical_commands, run_lirical_local
+from pheval_lirical.tool_specific_configurations import LiricalConfigurations
 
 
 @dataclass
@@ -29,11 +30,12 @@ class LiricalPhEvalRunner(PhEvalRunner):
         config = parse_lirical_config(self.config_file)
         print("running with lirical")
         prepare_lirical_commands(
-            config=config,
             input_dir=self.input_dir,
             testdata_dir=self.testdata_dir,
             raw_results_dir=self.raw_results_dir,
             tool_input_commands_dir=self.tool_input_commands_dir,
+            lirical_version=self.version,
+            tool_specific_configurations=LiricalConfigurations(**self.input_dir_config.tool_specific_configuration_options)
         )
         run_lirical_local(
             testdata_dir=self.testdata_dir, tool_input_commands_dir=self.tool_input_commands_dir
