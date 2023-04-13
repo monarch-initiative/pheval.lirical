@@ -27,7 +27,6 @@ class LiricalPhEvalRunner(PhEvalRunner):
 
     def run(self):
         """run"""
-        config = parse_lirical_config(self.config_file)
         print("running with lirical")
         prepare_lirical_commands(
             input_dir=self.input_dir,
@@ -35,7 +34,9 @@ class LiricalPhEvalRunner(PhEvalRunner):
             raw_results_dir=self.raw_results_dir,
             tool_input_commands_dir=self.tool_input_commands_dir,
             lirical_version=self.version,
-            tool_specific_configurations=LiricalConfigurations(**self.input_dir_config.tool_specific_configuration_options)
+            tool_specific_configurations=LiricalConfigurations(
+                **self.input_dir_config.tool_specific_configuration_options
+            ),
         )
         run_lirical_local(
             testdata_dir=self.testdata_dir, tool_input_commands_dir=self.tool_input_commands_dir
