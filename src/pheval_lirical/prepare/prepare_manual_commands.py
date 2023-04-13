@@ -20,5 +20,3 @@ class LiricalManualCommandLineArguments:
     output_prefix: str
     exomiser_hg19_data_path: Path = None
     exomiser_hg38_data_path: Path = None
-
-
