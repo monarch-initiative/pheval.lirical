@@ -1,38 +1,26 @@
-from dataclasses import dataclass
 from pathlib import Path
 
-import click
-from phenopackets import Phenopacket, PhenotypicFeature
 from pheval.utils.file_utils import files_with_suffix
 from pheval.utils.phenopacket_utils import PhenopacketUtil, phenopacket_reader
 
+from pheval_lirical.prepare.prepare_manual_commands import LiricalManualCommandLineArguments
+from phenopackets import Phenopacket
 
-@dataclass
-class LiricalManualCommandLineArguments:
-    """Minimal arguments required to run LIRICAL manually on the command line."""
-
-    lirical_jar_file: Path
-    observed_phenotypes: [PhenotypicFeature]
-    negated_phenotypes: [PhenotypicFeature] or None
-    assembly: str
-    vcf_file_path: Path
-    sample_id: str
-    lirical_data: Path
-    exomiser_data: Path
-    output_dir: Path
-    output_prefix: str
+from pheval_lirical.prepare.prepare_phenopacket_commands import LiricalPhenopacketCommandLineArguments
+# from packaging import version
 
 
 class CommandCreator:
     def __init__(
-        self,
-        phenopacket_path: Path,
-        phenopacket: Phenopacket,
-        lirical_jar: Path,
-        input_dir: Path,
-        exomiser_data_dir: Path,
-        vcf_dir: Path,
-        results_dir: Path,
+            self,
+            phenopacket_path: Path,
+            phenopacket: Phenopacket,
+            lirical_jar: Path,
+            input_dir: Path,
+            exomiser_data_dir: Path,
+            vcf_dir: Path,
+            results_dir: Path,
+            mode: str
     ):
         self.phenopacket_path = phenopacket_path
         self.lirical_jar = lirical_jar
@@ -40,6 +28,7 @@ class CommandCreator:
         self.exomiser_data_dir = exomiser_data_dir
         self.vcf_dir = vcf_dir
         self.results_dir = results_dir
+        self.mode = mode
         self.phenopacket_util = PhenopacketUtil(phenopacket)
 
     def get_list_negated_phenotypic_features(self):
@@ -81,14 +70,31 @@ class CommandCreator:
             output_prefix=self.phenopacket_path.stem,
         )
 
+    def add_phenopacket_cli_arguments(self):
+        return LiricalPhenopacketCommandLineArguments(lirical_jar_path=self.lirical_jar,
+                                                      phenopacket_path=self.phenopacket_path,
+                                                      vcf_file_path=self.get_vcf_path(),
+                                                      assembly=self.get_vcf_assembly(),
+                                                      lirical_data=self.input_dir,
+                                                      exomiser_data_path=self.exomiser_data_dir,
+                                                      output_dir=self.results_dir,
+                                                      output_prefix=self.phenopacket_path.stem)
+
+    def add_cli_arguments(self):
+        if self.mode.lower() == "phenopacket":
+            return self.add_phenopacket_cli_arguments()
+        elif self.mode.lower() == "manual":
+            return self.add_manual_cli_arguments()
+
 
 def create_command_arguments(
-    phenopacket_dir: Path,
-    lirical_jar: Path,
-    input_dir: Path,
-    exomiser_data_dir: Path,
-    vcf_dir: Path,
-    output_dir: Path,
+        phenopacket_dir: Path,
+        lirical_jar: Path,
+        input_dir: Path,
+        exomiser_data_dir: Path,
+        vcf_dir: Path,
+        output_dir: Path,
+        mode: str
 ) -> list[LiricalManualCommandLineArguments]:
     """Return a list of LIRICAL command line arguments for a directory of phenopackets."""
     phenopacket_paths = files_with_suffix(phenopacket_dir, ".json")
@@ -104,72 +110,74 @@ def create_command_arguments(
                 exomiser_data_dir=exomiser_data_dir,
                 vcf_dir=vcf_dir,
                 results_dir=output_dir,
-            ).add_manual_cli_arguments()
+                mode=mode
+            ).add_cli_arguments()
         )
     return commands
 
 
 class CommandWriter:
-    def __init__(self, output_file: Path):
+    def __init__(self, mode: str, output_file: Path):
+        self.mode = mode
         self.file = open(output_file, "w")
 
-    def write_basic_manual_command(self, command_arguments: LiricalManualCommandLineArguments):
+    def write_java_command(self,
+                           command_arguments: LiricalManualCommandLineArguments or LiricalPhenopacketCommandLineArguments):
         """Write the basic command do run LIRICAL in manual mode."""
-        try:
-            self.file.write("java" + " -jar " + str(command_arguments.lirical_jar_file) + " R ")
-        except IOError:
-            print("Error writing ", self.file)
+        self.file.write("java" + " -jar " + str(command_arguments.lirical_jar_file))
+
+    def write_mode(self):
+        if self.mode.lower() == "phenopacket":
+            self.file.write(" P ")
+        elif self.mode.lower() == "manual":
+            self.file.write(" R ")
 
     def write_observed_phenotypic_features(
-        self, command_arguments: LiricalManualCommandLineArguments
+            self, command_arguments: LiricalManualCommandLineArguments
     ):
         """Write observed HPO ids to command."""
-        try:
-            self.file.write(
-                "--observed-phenotypes " + ",".join(command_arguments.observed_phenotypes)
-            )
-        except IOError:
-            print("Error writing ", self.file)
+        self.file.write(
+            "--observed-phenotypes " + ",".join(command_arguments.observed_phenotypes)
+        )
 
     def write_negated_phenotypic_features(
-        self, command_arguments: LiricalManualCommandLineArguments
+            self, command_arguments: LiricalManualCommandLineArguments
     ):
         """Write negated HPO ids to command."""
-        try:
-            if command_arguments.negated_phenotypes is not None:
-                self.file.write(
-                    " --negated-phenotypes " + ",".join(command_arguments.negated_phenotypes)
-                )
-        except IOError:
-            print("Error writing ", self.file)
+        if command_arguments.negated_phenotypes is not None:
+            self.file.write(
+                " --negated-phenotypes " + ",".join(command_arguments.negated_phenotypes)
+            )
 
-    def write_vcf(self, command_arguments: LiricalManualCommandLineArguments):
+    def write_vcf_file_properties(self,
+                                  command_arguments: LiricalManualCommandLineArguments or LiricalPhenopacketCommandLineArguments):
         """Write related VCF arguments to command."""
-        try:
-            self.file.write(
-                " --vcf "
-                + str(command_arguments.vcf_file_path)
-                + " --assembly "
-                + command_arguments.assembly
-                + " --sample-id "
-                + '"'
-                + command_arguments.sample_id
-                + '"'
-            )
-        except IOError:
-            print("Error writing ", self.file)
+        self.file.write(
+            " --vcf "
+            + str(command_arguments.vcf_file_path)
+            + " --assembly "
+            + command_arguments.assembly
+        )
 
-    def write_data_dirs(self, command_arguments: LiricalManualCommandLineArguments):
+    def write_sample_id(self, command_arguments: LiricalManualCommandLineArguments):
+        self.file.write(" --sample-id "
+                        + '"'
+                        + command_arguments.sample_id
+                        + '"')
+
+    def write_lirical_data_dir(self,
+                               command_arguments: LiricalManualCommandLineArguments or LiricalPhenopacketCommandLineArguments):
         """Write data directory locations to command."""
-        try:
-            self.file.write(
-                " --data "
-                + str(command_arguments.lirical_data)
-                + " --exomiser "
-                + str(command_arguments.exomiser_data)
-            )
-        except IOError:
-            print("Error writing ", self.file)
+        self.file.write(
+            " --data "
+            + str(command_arguments.lirical_data)
+            + " --exomiser "
+            + str(command_arguments.exomiser_data)
+        )
+
+    # def write_exomiser_data_dir(self, command_arguments: LiricalManualCommandLineArguments or LiricalPhenopacketCommandLineArguments):
+    #     if version.parse(config.run.exomiser_configurations.exomiser_version) > version.parse("1.3.4"):
+    #         self.file.write(" -e19 " +)
 
     def write_output_parameters(self, command_arguments: LiricalManualCommandLineArguments):
         """Write related output parameter arguments to command."""
@@ -187,11 +195,11 @@ class CommandWriter:
 
     def write_manual_command(self, command_arguments: LiricalManualCommandLineArguments):
         """Write LIRICAL command to file to run in manual mode."""
-        self.write_basic_manual_command(command_arguments)
+        self.write_java_command(command_arguments)
         self.write_observed_phenotypic_features(command_arguments)
         self.write_negated_phenotypic_features(command_arguments)
-        self.write_vcf(command_arguments)
-        self.write_data_dirs(command_arguments)
+        self.write_vcf_file_properties(command_arguments)
+        self.write_lirical_data_dir(command_arguments)
         self.write_output_parameters(command_arguments)
         self.file.write("\n")
 
@@ -201,75 +209,3 @@ class CommandWriter:
             self.file.close()
         except IOError:
             print("Error closing ", self.file)
-
-
-def write_all_manual_commands(
-    command_arguments: [LiricalManualCommandLineArguments],
-    tool_input_commands_dir: Path,
-    file_prefix: Path,
-):
-    """Write all commands to file for running LIRICAL in manual mode."""
-    command_writer = CommandWriter(
-        output_file=tool_input_commands_dir.joinpath(f"{file_prefix}-lirical-commands.txt")
-    )
-    for command_argument in command_arguments:
-        command_writer.write_manual_command(command_argument)
-    command_writer.close()
-
-
-def prepare_commands(
-    lirical_jar: Path,
-    input_dir: Path,
-    exomiser_data_dir: Path,
-    phenopacket_dir: Path,
-    vcf_dir: Path,
-    file_prefix: str,
-    tool_input_commands_dir: Path,
-    raw_results_dir: Path,
-):
-    """Prepare command batch files to run LIRICAL."""
-    command_arguments = create_command_arguments(
-        phenopacket_dir, lirical_jar, input_dir, exomiser_data_dir, vcf_dir, raw_results_dir
-    )
-    write_all_manual_commands(command_arguments, tool_input_commands_dir, file_prefix)
-
-
-@click.command("prepare-commands")
-@click.option("--lirical-jar", "-l", required=True, help="Path to Lirical jar file.", type=Path)
-@click.option("--input-dir", "-i", required=True, help="Path to Lirical data directory.", type=Path)
-@click.option(
-    "--exomiser-data-dir",
-    "-exomiser",
-    required=False,
-    help="Path to exomiser data directory.",
-    type=Path,
-)
-@click.option("--phenopacket-dir", "-p", required=True, help="Path to phenopacket.", type=Path)
-@click.option("--vcf-dir", "-v", required=True, help="Path to vcf directory.", type=Path)
-@click.option("--file-prefix", "-f", required=True, help="File prefix", type=Path)
-@click.option("-output-dir", "-o", required=True, help="Path to output of batch files.", type=Path)
-@click.option(
-    "-results-dir", "-r", required=True, help="Path to output LIRICAL results.", type=Path
-)
-def prepare_commands_command(
-    lirical_jar: Path,
-    input_dir: Path,
-    exomiser_data_dir: Path,
-    phenopacket_dir: Path,
-    vcf_dir: Path,
-    file_prefix: str,
-    output_dir: Path,
-    results_dir: Path,
-):
-    """Prepare command batch files to run LIRICAL."""
-    output_dir.joinpath("tool_input_commands").mkdir(parents=True, exist_ok=True)
-    prepare_commands(
-        lirical_jar,
-        input_dir,
-        exomiser_data_dir,
-        phenopacket_dir,
-        vcf_dir,
-        file_prefix,
-        output_dir.joinpath("tool_input_commands"),
-        results_dir,
-    )
