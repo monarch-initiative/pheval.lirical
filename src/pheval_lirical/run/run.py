@@ -62,7 +62,7 @@ def prepare_lirical_commands(
 
 
 def run_lirical_local(tool_input_commands_dir: Path, testdata_dir: Path):
-    """Run Phen2Gene locally."""
+    """Run LIRICAL locally."""
     batch_file = [
         file
         for file in all_files(Path(tool_input_commands_dir))
