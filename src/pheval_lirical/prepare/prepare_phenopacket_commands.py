@@ -4,6 +4,7 @@ from pathlib import Path
 
 @dataclass
 class LiricalPhenopacketCommandLineArguments:
+    """Minimal arguments required to run LIRICAL in phenopacket mode on the command line."""
     lirical_jar_file: Path
     phenopacket_path: Path
     vcf_file_path: Path
