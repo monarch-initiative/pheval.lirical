@@ -20,11 +20,10 @@ from phenopackets import (
     VcfRecord,
 )
 
-from pheval_lirical.prepare.prepare_commands import (
-    CommandCreator,
-    CommandWriter,
+from pheval_lirical.prepare.prepare_manual_commands import (
     LiricalManualCommandLineArguments,
 )
+from pheval_lirical.prepare.prepare_commands import CommandCreator, CommandWriter
 
 interpretations = [
     Interpretation(
@@ -277,7 +276,7 @@ class TestCommandWriter(unittest.TestCase):
         shutil.rmtree(self.test_dir)
 
     def test_write_basic_manual_command(self):
-        self.command_writer.write_basic_manual_command(self.command_arguments)
+        self.command_writer.write_java_command(self.command_arguments)
         self.command_writer.file.close()
         with open(self.command_file_path) as f:
             content = f.readlines()
@@ -304,7 +303,7 @@ class TestCommandWriter(unittest.TestCase):
         self.assertEqual(content, [" --negated-phenotypes HP:0008494"])
 
     def test_write_vcf(self):
-        self.command_writer.write_vcf(self.command_arguments)
+        self.command_writer.write_vcf_file_properties(self.command_arguments)
         self.command_writer.file.close()
         with open(self.command_file_path) as f:
             content = f.readlines()
@@ -315,7 +314,7 @@ class TestCommandWriter(unittest.TestCase):
         )
 
     def test_write_data_dirs(self):
-        self.command_writer.write_data_dirs(self.command_arguments)
+        self.command_writer.write_lirical_data_dir(self.command_arguments)
         self.command_writer.file.close()
         with open(self.command_file_path) as f:
             content = f.readlines()
