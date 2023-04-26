@@ -6,12 +6,8 @@ import pandas as pd
 from pheval.post_processing.post_processing import (
     PhEvalGeneResult,
     PhEvalVariantResult,
-    RankedPhEvalGeneResult,
-    RankedPhEvalVariantResult,
     calculate_end_pos,
-    create_pheval_result,
-    write_pheval_gene_result,
-    write_pheval_variant_result,
+    generate_pheval_result,
 )
 from pheval.utils.file_utils import files_with_suffix
 from pheval.utils.phenopacket_utils import (
@@ -142,29 +138,6 @@ class PhEvalVariantResultFromLirical:
         return simplified_variant_results
 
 
-def create_pheval_variant_result_from_lirical(
-    lirical_tsv_result: pd.DataFrame,
-    sort_order: str,
-) -> [RankedPhEvalVariantResult]:
-    """Create ranked PhEval variant result from LIRICAL tsv."""
-    pheval_variant_result = PhEvalVariantResultFromLirical(
-        lirical_tsv_result
-    ).extract_pheval_requirements()
-    return create_pheval_result(pheval_variant_result, sort_order)
-
-
-def create_pheval_gene_result_from_lirical(
-    lirical_tsv_result: pd.DataFrame,
-    gene_identifier_updator: GeneIdentifierUpdater,
-    sort_order: str,
-) -> [RankedPhEvalGeneResult]:
-    """Create ranked PhEval gene result from LIRICAL tsv."""
-    pheval_gene_result = PhEvalGeneResultFromLirical(
-        lirical_tsv_result, gene_identifier_updator
-    ).extract_pheval_requirements()
-    return create_pheval_result(pheval_gene_result, sort_order)
-
-
 def create_standardised_results(raw_results_dir: Path, output_dir: Path, sort_order: str) -> None:
     """Write standardised gene and variant results from LIRICAL tsv output."""
     identifier_map = create_gene_identifier_map()
@@ -174,14 +147,14 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path, sort_or
     )
     for result in files_with_suffix(raw_results_dir, ".tsv"):
         lirical_result = read_lirical_result(result)
-        pheval_gene_result = create_pheval_gene_result_from_lirical(
-            lirical_result, gene_identifier_updator, sort_order
-        )
-        write_pheval_gene_result(pheval_gene_result, output_dir, result)
-        pheval_variant_result = create_pheval_variant_result_from_lirical(
-            lirical_result, sort_order
-        )
-        write_pheval_variant_result(pheval_variant_result, output_dir, result)
+        pheval_gene_result = PhEvalGeneResultFromLirical(
+            lirical_result, gene_identifier_updator
+        ).extract_pheval_requirements()
+        generate_pheval_result(pheval_gene_result, sort_order, output_dir, result)
+        pheval_variant_result = PhEvalVariantResultFromLirical(
+            lirical_result
+        ).extract_pheval_requirements()
+        generate_pheval_result(pheval_variant_result, sort_order, output_dir, result)
 
 
 @click.command("post-process")
