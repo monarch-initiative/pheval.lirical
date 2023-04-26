@@ -1,10 +1,12 @@
 from pathlib import Path
 
-from pheval_lirical.config_parser import LiricalConfig
 from pheval_lirical.post_process.post_process_results_format import create_standardised_results
+from pheval_lirical.tool_specific_configuration_parser import LIRICALToolSpecificConfigurations
 
 
-def post_process_results_format(raw_results_dir: Path, output_dir: Path, config: LiricalConfig):
+def post_process_results_format(
+    raw_results_dir: Path, output_dir: Path, config: LIRICALToolSpecificConfigurations
+):
     """Create pheval gene and variant result from LIRICAL tsv output."""
     print("...creating pheval results format...")
     create_standardised_results(
