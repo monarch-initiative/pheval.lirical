@@ -1,12 +1,7 @@
 import unittest
 
 import pandas as pd
-from pheval.post_processing.post_processing import (
-    PhEvalGeneResult,
-    PhEvalVariantResult,
-    RankedPhEvalGeneResult,
-    RankedPhEvalVariantResult,
-)
+from pheval.post_processing.post_processing import PhEvalGeneResult, PhEvalVariantResult
 from pheval.utils.phenopacket_utils import (
     GeneIdentifierUpdater,
     create_gene_identifier_map,
@@ -16,8 +11,6 @@ from pheval.utils.phenopacket_utils import (
 from pheval_lirical.post_process.post_process_results_format import (
     PhEvalGeneResultFromLirical,
     PhEvalVariantResultFromLirical,
-    create_pheval_gene_result_from_lirical,
-    create_pheval_variant_result_from_lirical,
 )
 
 lirical_results = pd.DataFrame(
@@ -238,177 +231,6 @@ class TestPhEvalVariantResultFromLirical(unittest.TestCase):
                 ),
                 PhEvalVariantResult(
                     chromosome="4", start=55026539, end=55026541, ref="ACT", alt="A", score=-1.439
-                ),
-            ],
-        )
-
-
-class TestCreateVariantGeneResultFromLirical(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.hgnc_data = create_hgnc_dict()
-        cls.identifier_map = create_gene_identifier_map()
-
-    def test_create_pheval_variant_result_from_lirical(self):
-        self.assertEqual(
-            create_pheval_variant_result_from_lirical(lirical_results, "descending"),
-            [
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="19", start=12998205, end=12998205, ref="G", alt="C", score=4.203
-                    ),
-                    rank=1,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="19", start=13002033, end=13002033, ref="A", alt="G", score=4.203
-                    ),
-                    rank=1,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="19", start=13002400, end=13002400, ref="G", alt="C", score=4.203
-                    ),
-                    rank=1,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="19", start=13002563, end=13002563, ref="T", alt="G", score=4.203
-                    ),
-                    rank=1,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="19", start=13007113, end=13007113, ref="G", alt="A", score=4.203
-                    ),
-                    rank=1,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="19", start=13008264, end=13008264, ref="C", alt="T", score=4.203
-                    ),
-                    rank=1,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="19", start=13008607, end=13008607, ref="G", alt="T", score=4.203
-                    ),
-                    rank=1,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="19", start=13010520, end=13010520, ref="A", alt="G", score=4.203
-                    ),
-                    rank=1,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="19", start=13010643, end=13010643, ref="G", alt="T", score=4.203
-                    ),
-                    rank=1,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4", start=54950725, end=54950725, ref="C", alt="T", score=-1.439
-                    ),
-                    rank=10,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4", start=54966667, end=54966667, ref="C", alt="T", score=-1.439
-                    ),
-                    rank=10,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4", start=54966830, end=54966830, ref="G", alt="A", score=-1.439
-                    ),
-                    rank=10,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4",
-                        start=54966910,
-                        end=54966910,
-                        ref="G",
-                        alt="GCACCAC",
-                        score=-1.439,
-                    ),
-                    rank=10,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4", start=54967709, end=54967709, ref="C", alt="A", score=-1.439
-                    ),
-                    rank=10,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4", start=55002331, end=55002331, ref="T", alt="C", score=-1.439
-                    ),
-                    rank=10,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4", start=55009968, end=55009968, ref="C", alt="T", score=-1.439
-                    ),
-                    rank=10,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4", start=55010012, end=55010012, ref="G", alt="T", score=-1.439
-                    ),
-                    rank=10,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4", start=55011769, end=55011769, ref="T", alt="C", score=-1.439
-                    ),
-                    rank=10,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4", start=55013951, end=55013951, ref="T", alt="C", score=-1.439
-                    ),
-                    rank=10,
-                ),
-                RankedPhEvalVariantResult(
-                    pheval_variant_result=PhEvalVariantResult(
-                        chromosome="4",
-                        start=55026539,
-                        end=55026541,
-                        ref="ACT",
-                        alt="A",
-                        score=-1.439,
-                    ),
-                    rank=10,
-                ),
-            ],
-        )
-
-    def test_create_pheval_gene_result_from_lirical(self):
-        self.assertEqual(
-            create_pheval_gene_result_from_lirical(
-                lirical_results,
-                GeneIdentifierUpdater(
-                    hgnc_data=self.hgnc_data,
-                    gene_identifier="ensembl_id",
-                    identifier_map=self.identifier_map,
-                ),
-                "descending",
-            ),
-            [
-                RankedPhEvalGeneResult(
-                    pheval_gene_result=PhEvalGeneResult(
-                        gene_symbol="GCDH", gene_identifier="ENSG00000105607", score=4.203
-                    ),
-                    rank=1,
-                ),
-                RankedPhEvalGeneResult(
-                    pheval_gene_result=PhEvalGeneResult(
-                        gene_symbol="GSX2", gene_identifier="ENSG00000180613", score=-1.439
-                    ),
-                    rank=2,
                 ),
             ],
         )
