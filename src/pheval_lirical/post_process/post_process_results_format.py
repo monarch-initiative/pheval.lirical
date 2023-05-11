@@ -159,7 +159,7 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path, sort_or
 
 @click.command("post-process")
 @click.option(
-    "--lirical-file", "-f", required=True, help="Path to Lirical results file.", type=Path
+    "--results-dir", "-r", required=True, help="Path to LIRICAL results directory.", type=Path
 )
 @click.option("--output-dir", "-o", required=True, help="Path to output directory.", type=Path)
 @click.option(
@@ -171,8 +171,8 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path, sort_or
     default="descending",
     show_default=True,
 )
-def post_process(lirical_file: Path, output_dir: Path, sort_order: str):
+def post_process(results_dir: Path, output_dir: Path, sort_order: str):
     """Post-process LIRICAL .tsv results to PhEval gene and variant result format."""
     output_dir.joinpath("pheval_gene_results/").mkdir(exist_ok=True, parents=True)
     output_dir.joinpath("pheval_variant_results/").mkdir(exist_ok=True, parents=True)
-    create_standardised_results(lirical_file, output_dir, sort_order)
+    create_standardised_results(results_dir, output_dir, sort_order)
