@@ -1,7 +1,11 @@
 import unittest
 
 import pandas as pd
-from pheval.post_processing.post_processing import PhEvalGeneResult, PhEvalVariantResult
+from pheval.post_processing.post_processing import (
+    PhEvalDiseaseResult,
+    PhEvalGeneResult,
+    PhEvalVariantResult,
+)
 from pheval.utils.phenopacket_utils import (
     GeneIdentifierUpdater,
     create_gene_identifier_map,
@@ -9,6 +13,7 @@ from pheval.utils.phenopacket_utils import (
 )
 
 from pheval_lirical.post_process.post_process_results_format import (
+    PhEvalDiseaseResultFromLirical,
     PhEvalGeneResultFromLirical,
     PhEvalVariantResultFromLirical,
 )
@@ -231,6 +236,44 @@ class TestPhEvalVariantResultFromLirical(unittest.TestCase):
                 ),
                 PhEvalVariantResult(
                     chromosome="4", start=55026539, end=55026541, ref="ACT", alt="A", score=-1.439
+                ),
+            ],
+        )
+
+
+class TestPhEvalDiseaseResultFromLirical(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.disease_result = PhEvalDiseaseResultFromLirical(
+            lirical_results,
+        )
+
+    def test_obtain_disease_identifier(self):
+        self.assertEqual(
+            self.disease_result.obtain_disease_identifier(lirical_result), "OMIM:231670"
+        )
+
+    def test_obtain_disease_name(self):
+        self.assertEqual(
+            self.disease_result.obtain_disease_name(lirical_result), "Glutaric acidemia I"
+        )
+
+    def test_obtain_score(self):
+        self.assertEqual(self.disease_result.obtain_score(lirical_result), 4.203)
+
+    def test_extract_pheval_requirements(self):
+        self.assertEqual(
+            self.disease_result.extract_pheval_requirements(),
+            [
+                PhEvalDiseaseResult(
+                    disease_name="Glutaric acidemia I",
+                    disease_identifier="OMIM:231670",
+                    score=4.203,
+                ),
+                PhEvalDiseaseResult(
+                    disease_name="Diencephalic-mesencephalic junction " "dysplasia syndrome 2",
+                    disease_identifier="OMIM:618646",
+                    score=-1.439,
                 ),
             ],
         )
