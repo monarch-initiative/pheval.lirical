@@ -5,7 +5,10 @@ from pheval_lirical.tool_specific_configuration_parser import LIRICALToolSpecifi
 
 
 def post_process_results_format(
-    raw_results_dir: Path, output_dir: Path, config: LIRICALToolSpecificConfigurations
+    raw_results_dir: Path,
+    output_dir: Path,
+    config: LIRICALToolSpecificConfigurations,
+    disease_analysis: bool,
 ):
     """Create pheval gene and variant result from LIRICAL tsv output."""
     print("...creating pheval results format...")
@@ -13,5 +16,6 @@ def post_process_results_format(
         raw_results_dir=raw_results_dir,
         output_dir=output_dir,
         sort_order=config.post_process.sort_order,
+        disease_analysis=disease_analysis,
     )
     print("done")

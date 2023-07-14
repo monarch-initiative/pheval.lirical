@@ -52,4 +52,5 @@ class LiricalPhEvalRunner(PhEvalRunner):
             raw_results_dir=self.raw_results_dir,
             output_dir=self.output_dir,
             config=config,
+            disease_analysis=self.input_dir_config.disease_analysis,
         )
