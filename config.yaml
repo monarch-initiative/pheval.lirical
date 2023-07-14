@@ -1,6 +1,7 @@
 tool: LIRICAL
 tool_version: 2.0.0-RC2
 phenotype_only: False
+disease_analysis: False
 tool_specific_configuration_options:
   mode: manual
   lirical_jar_executable: lirical-cli-2.0.0-RC2/lirical-cli-2.0.0-RC2.jar
