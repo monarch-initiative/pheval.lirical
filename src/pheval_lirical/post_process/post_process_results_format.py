@@ -4,6 +4,7 @@ from pathlib import Path
 import click
 import pandas as pd
 from pheval.post_processing.post_processing import (
+    PhEvalDiseaseResult,
     PhEvalGeneResult,
     PhEvalVariantResult,
     calculate_end_pos,
@@ -138,7 +139,45 @@ class PhEvalVariantResultFromLirical:
         return simplified_variant_results
 
 
-def create_standardised_results(raw_results_dir: Path, output_dir: Path, sort_order: str) -> None:
+class PhEvalDiseaseResultFromLirical:
+    def __init__(
+        self,
+        lirical_result: pd.DataFrame,
+    ):
+        self.lirical_result = lirical_result
+
+    @staticmethod
+    def obtain_disease_identifier(result: pd.Series) -> str:
+        """Obtain the disease curie from LIRICAL result."""
+        return result["diseaseCurie"]
+
+    @staticmethod
+    def obtain_disease_name(result: pd.Series) -> str:
+        """Obtain the disease name from LIRICAL result."""
+        return result["diseaseName"]
+
+    @staticmethod
+    def obtain_score(result: pd.Series) -> float:
+        """Obtain score from result."""
+        return result["compositeLR"]
+
+    def extract_pheval_requirements(self) -> [PhEvalDiseaseResult]:
+        """Extract data required to produce PhEval gene output."""
+        simplified_disease_results = []
+        for _index, result in self.lirical_result.iterrows():
+            simplified_disease_results.append(
+                PhEvalDiseaseResult(
+                    disease_name=self.obtain_disease_name(result),
+                    disease_identifier=self.obtain_disease_identifier(result),
+                    score=self.obtain_score(result),
+                )
+            )
+        return simplified_disease_results
+
+
+def create_standardised_results(
+    raw_results_dir: Path, output_dir: Path, sort_order: str, disease_analysis: bool
+) -> None:
     """Write standardised gene and variant results from LIRICAL tsv output."""
     identifier_map = create_gene_identifier_map()
     hgnc_data = create_hgnc_dict()
@@ -155,6 +194,11 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path, sort_or
             lirical_result
         ).extract_pheval_requirements()
         generate_pheval_result(pheval_variant_result, sort_order, output_dir, result)
+        if disease_analysis:
+            pheval_disease_result = PhEvalDiseaseResultFromLirical(
+                lirical_result
+            ).extract_pheval_requirements()
+            generate_pheval_result(pheval_disease_result, sort_order, output_dir, result)
 
 
 @click.command("post-process")
@@ -171,8 +215,16 @@ def create_standardised_results(raw_results_dir: Path, output_dir: Path, sort_or
     default="descending",
     show_default=True,
 )
-def post_process(results_dir: Path, output_dir: Path, sort_order: str):
+@click.option(
+    "--disease-analysis/--no-disease-analysis",
+    default=False,
+    required=False,
+    type=bool,
+    show_default=True,
+    help="Specify extraction for disease prioritisation results.",
+)
+def post_process(results_dir: Path, output_dir: Path, sort_order: str, disease_analysis: bool):
     """Post-process LIRICAL .tsv results to PhEval gene and variant result format."""
     output_dir.joinpath("pheval_gene_results/").mkdir(exist_ok=True, parents=True)
     output_dir.joinpath("pheval_variant_results/").mkdir(exist_ok=True, parents=True)
-    create_standardised_results(results_dir, output_dir, sort_order)
+    create_standardised_results(results_dir, output_dir, sort_order, disease_analysis)
