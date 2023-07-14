@@ -13,10 +13,10 @@ pandas = "^1.5.2"
 phenopackets = "^2.0.2"
 google = "^3.0.0"
 pyaml = "^21.10.1"
-oaklib = "^0.1.55"
+oaklib = ">=0.5.6"
 docker = "^6.0.1"
-pheval = {git = "https://github.com/monarch-initiative/pheval.git"}
 pydantic = "^1.10.7"
+pheval = {git = "https://github.com/monarch-initiative/pheval.git"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
