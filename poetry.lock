@@ -2401,7 +2401,7 @@ tqdm = ">=4.64.1"
 type = "git"
 url = "https://github.com/monarch-initiative/pheval.git"
 reference = "HEAD"
-resolved_reference = "f4bae11d8bcea59cc773f4c98eab825f4561082a"
+resolved_reference = "4a2a41216f5464e8a1131b4b2f5e8fe934a9ad56"
 
 [[package]]
 name = "pillow"
