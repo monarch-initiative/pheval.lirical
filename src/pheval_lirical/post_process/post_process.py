@@ -9,6 +9,8 @@ def post_process_results_format(
     output_dir: Path,
     config: LIRICALToolSpecificConfigurations,
     disease_analysis: bool,
+    gene_analysis: bool,
+    variant_analysis: bool,
 ):
     """Create pheval gene and variant result from LIRICAL tsv output."""
     print("...creating pheval results format...")
@@ -17,5 +19,7 @@ def post_process_results_format(
         output_dir=output_dir,
         sort_order=config.post_process.sort_order,
         disease_analysis=disease_analysis,
+        gene_analysis=gene_analysis,
+        variant_analysis=variant_analysis,
     )
     print("done")
