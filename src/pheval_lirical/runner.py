@@ -37,6 +37,8 @@ class LiricalPhEvalRunner(PhEvalRunner):
             tool_input_commands_dir=self.tool_input_commands_dir,
             lirical_version=self.version,
             tool_specific_configurations=config,
+            gene_analysis=self.input_dir_config.gene_analysis,
+            variant_analysis=self.input_dir_config.variant_analysis,
         )
         run_lirical_local(
             testdata_dir=self.testdata_dir, tool_input_commands_dir=self.tool_input_commands_dir
@@ -53,4 +55,6 @@ class LiricalPhEvalRunner(PhEvalRunner):
             output_dir=self.output_dir,
             config=config,
             disease_analysis=self.input_dir_config.disease_analysis,
+            gene_analysis=self.input_dir_config.gene_analysis,
+            variant_analysis=self.input_dir_config.variant_analysis,
         )

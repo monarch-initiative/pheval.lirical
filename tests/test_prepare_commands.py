@@ -211,7 +211,9 @@ class TestCommandCreator(unittest.TestCase):
 
     def test_add_manual_cli_arguments(self):
         self.assertEqual(
-            self.command_creator.add_manual_cli_arguments(),
+            self.command_creator.add_manual_cli_arguments(
+                gene_analysis=True, variant_analysis=False
+            ),
             LiricalManualCommandLineArguments(
                 lirical_jar_file=Path("/path/to/lirical.jar"),
                 observed_phenotypes=[
@@ -234,7 +236,9 @@ class TestCommandCreator(unittest.TestCase):
 
     def test_add_manual_cli_arguments_none_excluded(self):
         self.assertEqual(
-            self.command_creator_none_excluded.add_manual_cli_arguments(),
+            self.command_creator_none_excluded.add_manual_cli_arguments(
+                gene_analysis=True, variant_analysis=False
+            ),
             LiricalManualCommandLineArguments(
                 lirical_jar_file=Path("/path/to/lirical.jar"),
                 observed_phenotypes=[
@@ -259,7 +263,9 @@ class TestCommandCreator(unittest.TestCase):
         phenopacket_command_creator = copy(self.command_creator)
         phenopacket_command_creator.mode = "phenopacket"
         self.assertEqual(
-            phenopacket_command_creator.add_phenopacket_cli_arguments(),
+            phenopacket_command_creator.add_phenopacket_cli_arguments(
+                gene_analysis=False, variant_analysis=True
+            ),
             LiricalPhenopacketCommandLineArguments(
                 lirical_jar_file=Path("/path/to/lirical.jar"),
                 phenopacket_path=Path("/path/to/phenopacket.json"),
@@ -278,7 +284,9 @@ class TestCommandCreator(unittest.TestCase):
         phenopacket_command_creator = copy(self.command_creator)
         phenopacket_command_creator.mode = "phenopacket"
         self.assertEqual(
-            phenopacket_command_creator.add_cli_arguments(),
+            phenopacket_command_creator.add_cli_arguments(
+                gene_analysis=True, variant_analysis=True
+            ),
             LiricalPhenopacketCommandLineArguments(
                 lirical_jar_file=Path("/path/to/lirical.jar"),
                 phenopacket_path=Path("/path/to/phenopacket.json"),
@@ -294,7 +302,9 @@ class TestCommandCreator(unittest.TestCase):
         )
 
         self.assertEqual(
-            self.command_creator_none_excluded.add_cli_arguments(),
+            self.command_creator_none_excluded.add_cli_arguments(
+                gene_analysis=True, variant_analysis=True
+            ),
             LiricalManualCommandLineArguments(
                 lirical_jar_file=Path("/path/to/lirical.jar"),
                 observed_phenotypes=[
