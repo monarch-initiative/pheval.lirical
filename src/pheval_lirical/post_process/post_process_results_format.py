@@ -35,13 +35,17 @@ class PhEvalGeneResultFromLirical:
     @staticmethod
     def obtain_lirical_gene_identifier(result: pd.Series) -> str:
         """Obtain the NCBI gene id from LIRICAL result."""
-        return result["entrezGeneId"]
+        return str(result["entrezGeneId"])
 
     def obtain_gene_symbol(self, result: pd.Series) -> str:
         """Obtain the gene symbol from NCBI gene."""
         gene_identifier = self.obtain_lirical_gene_identifier(result)
-        return self.gene_identifier_updator.obtain_gene_symbol_from_identifier(
-            gene_identifier.split(":")[1]
+        return (
+            self.gene_identifier_updator.obtain_gene_symbol_from_identifier(
+                gene_identifier.split(":")[1]
+            )
+            if ":" in gene_identifier
+            else gene_identifier
         )
 
     def obtain_gene_identifier(self, result: pd.Series) -> str:
@@ -52,7 +56,9 @@ class PhEvalGeneResultFromLirical:
     @staticmethod
     def obtain_score(result: pd.Series) -> float:
         """Obtain score from result."""
-        return result["compositeLR"]
+        if result["compositeLR"] == "-∞":
+            return float("-inf")
+        return float(result["compositeLR"])
 
     def extract_pheval_requirements(self) -> [PhEvalGeneResult]:
         """Extract data required to produce PhEval gene output."""
@@ -76,7 +82,9 @@ class PhEvalVariantResultFromLirical:
     @staticmethod
     def obtain_score(lirical_result_entry: pd.Series) -> float:
         """Obtain score from result."""
-        return lirical_result_entry["compositeLR"]
+        if lirical_result_entry["compositeLR"] == "-∞":
+            return float("-inf")
+        return float(lirical_result_entry["compositeLR"])
 
     @staticmethod
     def obtain_variants(lirical_result_entry: pd.Series) -> str:
@@ -159,7 +167,9 @@ class PhEvalDiseaseResultFromLirical:
     @staticmethod
     def obtain_score(result: pd.Series) -> float:
         """Obtain score from result."""
-        return result["compositeLR"]
+        if result["compositeLR"] == "-∞":
+            return float("-inf")
+        return float(result["compositeLR"])
 
     def extract_pheval_requirements(self) -> [PhEvalDiseaseResult]:
         """Extract data required to produce PhEval gene output."""
@@ -176,7 +186,12 @@ class PhEvalDiseaseResultFromLirical:
 
 
 def create_standardised_results(
-    raw_results_dir: Path, output_dir: Path, sort_order: str, disease_analysis: bool
+    raw_results_dir: Path,
+    output_dir: Path,
+    sort_order: str,
+    disease_analysis: bool,
+    gene_analysis: bool,
+    variant_analysis: bool,
 ) -> None:
     """Write standardised gene and variant results from LIRICAL tsv output."""
     identifier_map = create_gene_identifier_map()
@@ -186,14 +201,16 @@ def create_standardised_results(
     )
     for result in files_with_suffix(raw_results_dir, ".tsv"):
         lirical_result = read_lirical_result(result)
-        pheval_gene_result = PhEvalGeneResultFromLirical(
-            lirical_result, gene_identifier_updator
-        ).extract_pheval_requirements()
-        generate_pheval_result(pheval_gene_result, sort_order, output_dir, result)
-        pheval_variant_result = PhEvalVariantResultFromLirical(
-            lirical_result
-        ).extract_pheval_requirements()
-        generate_pheval_result(pheval_variant_result, sort_order, output_dir, result)
+        if gene_analysis:
+            pheval_gene_result = PhEvalGeneResultFromLirical(
+                lirical_result, gene_identifier_updator
+            ).extract_pheval_requirements()
+            generate_pheval_result(pheval_gene_result, sort_order, output_dir, result)
+        if variant_analysis:
+            pheval_variant_result = PhEvalVariantResultFromLirical(
+                lirical_result
+            ).extract_pheval_requirements()
+            generate_pheval_result(pheval_variant_result, sort_order, output_dir, result)
         if disease_analysis:
             pheval_disease_result = PhEvalDiseaseResultFromLirical(
                 lirical_result
@@ -223,8 +240,33 @@ def create_standardised_results(
     show_default=True,
     help="Specify extraction for disease prioritisation results.",
 )
-def post_process(results_dir: Path, output_dir: Path, sort_order: str, disease_analysis: bool):
+@click.option(
+    "--gene-analysis/--no-gene-analysis",
+    default=False,
+    required=False,
+    type=bool,
+    show_default=True,
+    help="Specify analysis for gene prioritisation",
+)
+@click.option(
+    "--variant-analysis/--no-variant-analysis",
+    default=False,
+    required=False,
+    type=bool,
+    show_default=True,
+    help="Specify analysis for variant prioritisation",
+)
+def post_process(
+    results_dir: Path,
+    output_dir: Path,
+    sort_order: str,
+    disease_analysis: bool,
+    gene_analysis: bool,
+    variant_analysis: bool,
+):
     """Post-process LIRICAL .tsv results to PhEval gene and variant result format."""
     output_dir.joinpath("pheval_gene_results/").mkdir(exist_ok=True, parents=True)
     output_dir.joinpath("pheval_variant_results/").mkdir(exist_ok=True, parents=True)
-    create_standardised_results(results_dir, output_dir, sort_order, disease_analysis)
+    create_standardised_results(
+        results_dir, output_dir, sort_order, disease_analysis, gene_analysis, variant_analysis
+    )
