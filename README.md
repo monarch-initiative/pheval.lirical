@@ -37,6 +37,8 @@ tool_specific_configuration_options:
 ```
 The bare minimum fields are filled to give an idea on the requirements. 
 
+The `mode` should specify the mode you want to run LIRICAL in (either manual or phenopacket) both of these options require phenopackets as an input.
+
 The LIRICAL data files should be located in the input directory under a subdirectory named `data`
 If running LIRICAL with variant and/or gene analysis set to true, you will need to provide the relevant exomiser hg19/hg38 databases.
 
