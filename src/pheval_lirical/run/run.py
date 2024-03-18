@@ -23,11 +23,13 @@ def prepare_lirical_commands(
     prepare_commands(
         lirical_jar=input_dir.joinpath(tool_specific_configurations.lirical_jar_executable),
         input_dir=input_dir.joinpath("data"),
-        exomiser_data_dir=input_dir.joinpath(
-            tool_specific_configurations.exomiser_db_configurations.exomiser_database
-        )
-        if tool_specific_configurations.exomiser_db_configurations.exomiser_database is not None
-        else None,
+        exomiser_data_dir=(
+            input_dir.joinpath(
+                tool_specific_configurations.exomiser_db_configurations.exomiser_database
+            )
+            if tool_specific_configurations.exomiser_db_configurations.exomiser_database is not None
+            else None
+        ),
         phenopacket_dir=phenopacket_dir,
         vcf_dir=vcf_dir,
         file_prefix=Path(testdata_dir).name,
@@ -35,17 +37,21 @@ def prepare_lirical_commands(
         raw_results_dir=raw_results_dir,
         mode=tool_specific_configurations.mode,
         lirical_version=lirical_version,
-        exomiser_hg19_data=input_dir.joinpath(
-            tool_specific_configurations.exomiser_db_configurations.exomiser_hg19_database
-        )
-        if tool_specific_configurations.exomiser_db_configurations.exomiser_hg19_database
-        else None,
-        exomiser_hg38_data=input_dir.joinpath(
-            tool_specific_configurations.exomiser_db_configurations.exomiser_hg38_database
-        )
-        if tool_specific_configurations.exomiser_db_configurations.exomiser_hg38_database
-        is not None
-        else None,
+        exomiser_hg19_data=(
+            input_dir.joinpath(
+                tool_specific_configurations.exomiser_db_configurations.exomiser_hg19_database
+            )
+            if tool_specific_configurations.exomiser_db_configurations.exomiser_hg19_database
+            else None
+        ),
+        exomiser_hg38_data=(
+            input_dir.joinpath(
+                tool_specific_configurations.exomiser_db_configurations.exomiser_hg38_database
+            )
+            if tool_specific_configurations.exomiser_db_configurations.exomiser_hg38_database
+            is not None
+            else None
+        ),
         gene_analysis=gene_analysis,
         variant_analysis=variant_analysis,
     ),

@@ -76,12 +76,12 @@ class CommandCreator:
             sample_id=self.phenopacket_util.sample_id(),
             output_dir=self.results_dir,
             output_prefix=self.phenopacket_path.stem,
-            exomiser_hg19_data_path=self.exomiser_hg19_data_path
-            if gene_analysis or variant_analysis
-            else None,
-            exomiser_hg38_data_path=self.exomiser_hg38_data_path
-            if gene_analysis or variant_analysis
-            else None,
+            exomiser_hg19_data_path=(
+                self.exomiser_hg19_data_path if gene_analysis or variant_analysis else None
+            ),
+            exomiser_hg38_data_path=(
+                self.exomiser_hg38_data_path if gene_analysis or variant_analysis else None
+            ),
         )
 
     def add_phenopacket_cli_arguments(
@@ -97,12 +97,12 @@ class CommandCreator:
             exomiser_data=self.exomiser_data_dir,
             output_dir=self.results_dir,
             output_prefix=self.phenopacket_path.stem,
-            exomiser_hg19_data_path=self.exomiser_hg19_data_path
-            if gene_analysis or variant_analysis
-            else None,
-            exomiser_hg38_data_path=self.exomiser_hg38_data_path
-            if gene_analysis or variant_analysis
-            else None,
+            exomiser_hg19_data_path=(
+                self.exomiser_hg19_data_path if gene_analysis or variant_analysis else None
+            ),
+            exomiser_hg38_data_path=(
+                self.exomiser_hg38_data_path if gene_analysis or variant_analysis else None
+            ),
         )
 
     def add_cli_arguments(
@@ -279,10 +279,10 @@ class CommandWriter:
     ) -> None:
         """Write LIRICAL command."""
         try:
-            self.write_phenopacket_command(
-                command_arguments
-            ) if self.mode.lower() == "phenopacket" else self.write_manual_command(
-                command_arguments
+            (
+                self.write_phenopacket_command(command_arguments)
+                if self.mode.lower() == "phenopacket"
+                else self.write_manual_command(command_arguments)
             )
         except IOError:
             print("Error writing ", self.file)
