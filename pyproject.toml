@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pheval_lirical"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["Yasemin Bridges <y.bridges@qmul.ac.uk>"]
 readme = "README.md"
@@ -17,7 +17,6 @@ oaklib = ">=0.5.6"
 docker = "^6.0.1"
 pydantic = "^1.10.7"
 pheval = "^0.4.0"
-numpy = "1.24.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
