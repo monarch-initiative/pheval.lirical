@@ -4,10 +4,15 @@ This is the LIRICAL plugin for PhEval. With this plugin, you can leverage the pr
 
 ## Installation 
 
-Clone the pheval.lirical repo and set up the poetry environment:
+Install with pip:
 
 ```shell
-git clone https://github.com/yaseminbridges/pheval.lirical.git
+pip install pheval.lirical
+```
+Alternatively clone the pheval.lirical repo and set up the poetry environment:
+
+```shell
+git clone https://github.com/monarch-initiative/pheval.lirical.git
 cd pheval.lirical
 poetry shell
 poetry install
