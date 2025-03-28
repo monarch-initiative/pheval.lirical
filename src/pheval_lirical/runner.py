@@ -54,6 +54,7 @@ class LiricalPhEvalRunner(PhEvalRunner):
         post_process_results_format(
             raw_results_dir=self.raw_results_dir,
             output_dir=self.output_dir,
+            phenopacket_dir=self.testdata_dir.joinpath("phenopackets"),
             config=config,
             disease_analysis=self.input_dir_config.disease_analysis,
             gene_analysis=self.input_dir_config.gene_analysis,
