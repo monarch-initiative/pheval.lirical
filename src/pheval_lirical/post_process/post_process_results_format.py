@@ -17,7 +17,7 @@ from pheval.utils.phenopacket_utils import (
 
 def read_lirical_result(lirical_result_path: Path) -> pl.DataFrame:
     """Read LIRICAL tsv output and return a dataframe."""
-    return pl.read_csv(lirical_result_path, separator="\t", comment_prefix="!")
+    return pl.read_csv(lirical_result_path, separator="\t", comment_prefix="!", schema_overrides={"rank": pl.Utf8})
 
 
 def extract_disease_results(raw_result: pl.DataFrame) -> pl.DataFrame:
