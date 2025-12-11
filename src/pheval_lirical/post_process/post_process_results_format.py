@@ -39,7 +39,8 @@ def extract_disease_results(raw_result: pl.DataFrame) -> pl.DataFrame:
             pl.when(pl.col("compositeLR") == "-∞")
             .then(float("-inf"))
             .otherwise(pl.col("compositeLR"))
-            .alias("score").cast(pl.Float64),
+            .alias("score")
+            .cast(pl.Float64),
         ]
     )
 
@@ -67,7 +68,8 @@ def extract_gene_results(
             pl.when(pl.col("compositeLR") == "-∞")
             .then(float("-inf"))
             .otherwise(pl.col("compositeLR"))
-            .alias("score").cast(pl.Float64),
+            .alias("score")
+            .cast(pl.Float64),
         ]
     ).with_columns(
         [
@@ -100,7 +102,8 @@ def extract_variant_results(raw_result: pl.DataFrame) -> pl.DataFrame:
                 pl.when(pl.col("compositeLR") == "-∞")
                 .then(float("-inf"))
                 .otherwise(pl.col("compositeLR"))
-                .alias("score").cast(pl.Float64),
+                .alias("score")
+                .cast(pl.Float64),
             ]
         )
         .select(
