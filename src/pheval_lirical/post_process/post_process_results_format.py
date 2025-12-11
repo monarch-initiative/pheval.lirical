@@ -18,8 +18,10 @@ from pheval.utils.phenopacket_utils import (
 def read_lirical_result(lirical_result_path: Path) -> pl.DataFrame:
     """Read LIRICAL tsv output and return a dataframe."""
     return pl.read_csv(
-        lirical_result_path, separator="\t", comment_prefix="!",
-        schema_overrides={"rank": pl.Utf8, "compositeLR": pl.Utf8}
+        lirical_result_path,
+        separator="\t",
+        comment_prefix="!",
+        schema_overrides={"rank": pl.Utf8, "compositeLR": pl.Utf8},
     )
 
 
@@ -43,7 +45,7 @@ def extract_disease_results(raw_result: pl.DataFrame) -> pl.DataFrame:
 
 
 def extract_gene_results(
-        raw_result: pl.DataFrame, gene_identifier_updater: GeneIdentifierUpdater
+    raw_result: pl.DataFrame, gene_identifier_updater: GeneIdentifierUpdater
 ) -> pl.DataFrame:
     """
     Extract gene results from LIRICAL results.
@@ -118,13 +120,13 @@ def extract_variant_results(raw_result: pl.DataFrame) -> pl.DataFrame:
 
 
 def create_standardised_results(
-        raw_results_dir: Path,
-        output_dir: Path,
-        phenopacket_dir: Path,
-        sort_order: str,
-        disease_analysis: bool,
-        gene_analysis: bool,
-        variant_analysis: bool,
+    raw_results_dir: Path,
+    output_dir: Path,
+    phenopacket_dir: Path,
+    sort_order: str,
+    disease_analysis: bool,
+    gene_analysis: bool,
+    variant_analysis: bool,
 ) -> None:
     """Write standardised gene and variant results from LIRICAL tsv output."""
     gene_identifier_updater = GeneIdentifierUpdater(
