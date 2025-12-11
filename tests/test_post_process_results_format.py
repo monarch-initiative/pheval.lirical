@@ -20,7 +20,7 @@ lirical_results = pl.DataFrame(
             "diseaseCurie": "OMIM:231670",
             "pretestprob": 1 / 8371,
             "posttestprob": "65.60%",
-            "compositeLR": 4.203,
+            "compositeLR": "4.203",
             "entrezGeneId": "NCBIGene:2639",
             "variants": "19:12998205G>C NM_006563.3:: pathogenicity:0.0 [0/0]; "
             "19:13002033A>G NM_000159.3:c.-35+17A>G:p.(=) pathogenicity:0.0 [1/1]; "
@@ -38,7 +38,7 @@ lirical_results = pl.DataFrame(
             "diseaseCurie": "OMIM:618646",
             "pretestprob": 1 / 8371,
             "posttestprob": "0.00%",
-            "compositeLR": -1.439,
+            "compositeLR": "-1.439",
             "entrezGeneId": "NCBIGene:170825",
             "variants": "4:54950725C>T NM_133267.2:: pathogenicity:0.0 [1/1]; "
             "4:54966667C>T NM_133267.2:c.156C>T:p.(=) pathogenicity:0.0 [1/1]; "
