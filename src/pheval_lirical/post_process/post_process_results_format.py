@@ -36,10 +36,10 @@ def extract_disease_results(raw_result: pl.DataFrame) -> pl.DataFrame:
     return raw_result.select(
         [
             pl.col("diseaseCurie").alias("disease_identifier"),
-            pl.when(pl.col("compositeLR").cast(pl.Utf8) == "-∞")
+            pl.when(pl.col("compositeLR") == "-∞")
             .then(float("-inf"))
-            .otherwise(pl.col("compositeLR").cast(pl.Float64))
-            .alias("score"),
+            .otherwise(pl.col("compositeLR"))
+            .alias("score").cast(pl.Float64),
         ]
     )
 
@@ -64,10 +64,10 @@ def extract_gene_results(
                 gene_identifier_updater.obtain_gene_symbol_from_identifier, return_dtype=pl.String
             )
             .alias("gene_symbol"),
-            pl.when(pl.col("compositeLR").cast(pl.Utf8) == "-∞")
+            pl.when(pl.col("compositeLR") == "-∞")
             .then(float("-inf"))
-            .otherwise(pl.col("compositeLR").cast(pl.Float64))
-            .alias("score"),
+            .otherwise(pl.col("compositeLR"))
+            .alias("score").cast(pl.Float64),
         ]
     ).with_columns(
         [
@@ -97,10 +97,10 @@ def extract_variant_results(raw_result: pl.DataFrame) -> pl.DataFrame:
                 pl.col("variant").str.extract(r":(\d+)", 1).cast(pl.Int64).alias("pos"),
                 pl.col("variant").str.extract(r"([ACGT]+)>([ACGT]+)", 1).alias("ref"),
                 pl.col("variant").str.extract(r"([ACGT]+)>([ACGT]+)", 2).alias("alt"),
-                pl.when(pl.col("compositeLR").cast(pl.Utf8) == "-∞")
+                pl.when(pl.col("compositeLR") == "-∞")
                 .then(float("-inf"))
-                .otherwise(pl.col("compositeLR").cast(pl.Float64))
-                .alias("score"),
+                .otherwise(pl.col("compositeLR"))
+                .alias("score").cast(pl.Float64),
             ]
         )
         .select(
